@@ -3,30 +3,28 @@
  * These tests cover the basic operations of Netmock.
  */
 
-import netmock from '..';
+import { Netmock } from '../src/types/netmock';
 
 describe('Base Netmock Tests', () => {
-  it('should mock http.request function', async () => {
-    netmock.mock.get('http://localhost:8080', (_: any) => 'Hello');
-    const res = await fetch('http://localhost:8080', { method: 'GET' });
-    const body = await res.text();
+  let netmock: Netmock;
 
-    expect(body).toBe('Hello');
+  function fetchEndpoint() {
+    return fetch('https://wix.com');
+  }
+
+  beforeEach(() => {
+    netmock = require('..').default;
   });
 
-  it('should mock http.request function', async () => {
-    netmock.mock.get('http://wix.com', (_: any) => 'Hello');
-    const res = await fetch('http://wix.com', { method: 'GET' });
-    const body = await res.text();
+  it('should make a real network call if network is enabled and an unmocked request is fetched', async () => {
+    netmock.settings.enableNetwork();
 
-    expect(body).toBe('Hello');
+    await expect(fetchEndpoint()).resolves.toBeDefined();
   });
 
-  it('should mock https.request function', async () => {
-    netmock.mock.get('https://wix.com', (_: any) => 'Hello');
-    const res = await fetch('https://wix.com', { method: 'GET' });
-    const body = await res.text();
+  it('should throw an exception if network is disabled and an unmocked request is fetched', async () => {
+    netmock.settings.disableNetwork();
 
-    expect(body).toBe('Hello');
+    await expect(fetchEndpoint).toThrow('Endpoint not mocked');
   });
 });

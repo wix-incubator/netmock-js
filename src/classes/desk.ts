@@ -1,10 +1,10 @@
 import { InterceptorsDictionary } from '../types/desk';
 import { InterceptionHandler } from '../types/interceptor';
-import { getKeyFromInput } from '../utils/parse';
+import { getKeyFromInput, getParamsNamesFromInput } from '../utils/parse';
 import { overrideFetch, restoreFetchOverride } from '../utils/override';
 import { Singleton } from '../utils/singleton';
 
-class Desk {
+export class Desk {
   interceptors: InterceptorsDictionary = { get: {}, post: {} };
 
   /**
@@ -25,7 +25,8 @@ class Desk {
    */
   get(url: string, handler: InterceptionHandler) {
     const key = getKeyFromInput(url);
-    this.interceptors.get[key] = handler;
+    const paramsNames = getParamsNamesFromInput(url);
+    this.interceptors.get[key] = { key, handler, paramsNames };
   }
 
   /**
@@ -35,7 +36,8 @@ class Desk {
    */
   post(url: string, handler: InterceptionHandler) {
     const key = getKeyFromInput(url);
-    this.interceptors.post[key] = handler;
+    const paramsNames = getParamsNamesFromInput(url);
+    this.interceptors.post[key] = { key, handler, paramsNames };
   }
 
   /**
@@ -66,4 +68,5 @@ class Desk {
   }
 }
 
-export const DeskSingleton = Singleton(() => new Desk());
+const DeskSingleton = Singleton(() => new Desk());
+export const desk = () => DeskSingleton.getInstance();
