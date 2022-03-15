@@ -29,6 +29,7 @@
         "max-len": ["error", { "code": 120 }],
         "no-extra-boolean-cast":  "off",
         "@typescript-eslint/lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
-        "object-shorthand": ["error", "consistent"]
+        "object-shorthand": ["error", "consistent"],
+        "class-methods-use-this": "off"
     }
 }
