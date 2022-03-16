@@ -1,5 +1,5 @@
 import { InterceptorsDictionary } from '../types/desk';
-import { NetmockRequest } from '../types/base';
+import { NetmockRequest, NetmockResponse } from '../types/base';
 import { Interceptor } from '../types/interceptor';
 
 import { findInterceptor } from './interceptor';
@@ -8,7 +8,14 @@ import { extractMethod, extractParamsFromUrlAndInterceptor } from './extract';
 
 const originalFetch = global.fetch;
 
-function enhanceRequest(req: Request, interceptor: Interceptor): NetmockRequest {
+/**
+ * Enhance an intercepted request object.
+ * Inject query and url params to the request.
+ * @param {Request} req The request object to enhance.
+ * @param {Interceptor} interceptor The request's interceptor.
+ * @return {NetmockRequest} An enhanced NetmockRequest object.
+ */
+function enhanceInterceptedRequest(req: Request, interceptor: Interceptor): NetmockRequest {
   const url = endStringWithSlash(req.url);
 
   const { searchParams } = new URL(url.slice(0, -1));
@@ -24,6 +31,16 @@ function enhanceRequest(req: Request, interceptor: Interceptor): NetmockRequest 
 }
 
 /**
+ * Get a default response object params.
+ * @return {NetmockResponse} A default NetmockResponse object.
+ */
+function getDefaultResponseParams(): NetmockResponse {
+  return {
+    status: 200,
+  };
+}
+
+/**
  * Override the Fetch API fetch() function
  */
 export function overrideFetch(interceptors: InterceptorsDictionary) {
@@ -35,13 +52,15 @@ export function overrideFetch(interceptors: InterceptorsDictionary) {
       return originalFetch(input, init);
     }
 
-    const rawReq = new global.Request(input, init);
-    const req = enhanceRequest(rawReq, interceptor);
-    const body = interceptor.handler(req);
-    const bodyString = typeof body === 'string' ? body : JSON.stringify(body);
-    const res = new global.Response(bodyString);
+    const request = new global.Request(input, init);
+    const req = enhanceInterceptedRequest(request, interceptor);
+    const res = getDefaultResponseParams();
 
-    return Promise.resolve(res);
+    const body = interceptor.handler(req, res);
+    const bodyString = typeof body === 'string' ? body : JSON.stringify(body);
+
+    const response = new global.Response(bodyString, res);
+    return Promise.resolve(response);
   };
 }
 

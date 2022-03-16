@@ -7,3 +7,9 @@ export interface NetmockRequest extends Request {
   query: { [key: string]: string },
   params: { [key: string]: string },
 }
+
+export interface NetmockResponse {
+  status: number
+  statusText?: string,
+  headers?: { [key: string]: string },
+}
