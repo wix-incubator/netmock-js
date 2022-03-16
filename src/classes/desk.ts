@@ -2,20 +2,20 @@ import { InterceptorsDictionary } from '../types/desk';
 import { InterceptionHandler } from '../types/interceptor';
 import { extractKeyFromInput, extractParamsNamesFromInput } from '../utils/extract';
 import { overrideFetch, restoreFetchOverride } from '../utils/override';
-import { Singleton } from '../utils/singleton';
+import { singletonize } from '../utils/singleton';
 
+/**
+ * The Desk class provides an api to register interceptors to mock network calls
+ * to specific routes.
+ * Interceptor provides a URL, method and handler function, that will be called when
+ * the url is requested by the Fetch API fetch() function.
+ * The interceptor's handler return value is the response for the request.
+ */
 export class Desk {
   interceptors: InterceptorsDictionary = {
     get: {}, post: {}, put: {}, patch: {}, delete: {},
   };
 
-  /**
-   * The Desk class provides an api to register interceptors to mock network calls
-   * to specific routes.
-   * Interceptor provides a URL, method and handler function, that will be called when
-   * the url is requested by the Fetch API fetch() function.
-   * The interceptor's handler return value is the response for the request.
-   */
   constructor() {
     overrideFetch(this.interceptors);
   }
@@ -105,5 +105,5 @@ export class Desk {
   }
 }
 
-const DeskSingleton = Singleton(() => new Desk());
+const DeskSingleton = singletonize(() => new Desk());
 export const desk = () => DeskSingleton.getInstance();

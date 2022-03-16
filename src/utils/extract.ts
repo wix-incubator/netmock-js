@@ -7,7 +7,7 @@ import { Method } from '../types/base';
  * @param {RequestInfo} input The provided url input.
  * @return {string} A string url.
  */
-function extractUrlFromInput(input: RequestInfo) {
+function extractUrlFromInput(input: RequestInfo): string {
   if (typeof input === 'string') {
     // If input is a string, it is the url
     return input;
@@ -20,8 +20,9 @@ function extractUrlFromInput(input: RequestInfo) {
 /**
  * Extract an interceptor key from request input.
  * @param {RequestInfo | RegExp} input The provided url or regexp input.
+ * @return {string} An interceptor key.
  */
-export function extractKeyFromInput(input: RequestInfo | RegExp) {
+export function extractKeyFromInput(input: RequestInfo | RegExp): string {
   if (input instanceof RegExp) {
     return `${input}`;
   }
@@ -40,7 +41,7 @@ export function extractKeyFromInput(input: RequestInfo | RegExp) {
  * @param {RequestInfo} input The provided url input.
  * @return {string[]} An array of params names.
  */
-export function extractParamsNamesFromInput(input: RequestInfo | RegExp) {
+export function extractParamsNamesFromInput(input: RequestInfo | RegExp): string[] {
   if (input instanceof RegExp) {
     // RegExp with url params is not supported
     return [];
@@ -57,8 +58,9 @@ export function extractParamsNamesFromInput(input: RequestInfo | RegExp) {
  * Get request params from url and its interceptor.
  * @param {string} url The provided url input.
  * @param {Interceptor} interceptor The url matching interceptor.
+ * @return {{[key: string]: string}} The url params key-value map.
  */
-export function extractParamsFromUrlAndInterceptor(url: string, interceptor: Interceptor) {
+export function extractParamsFromUrlAndInterceptor(url: string, interceptor: Interceptor): { [key: string]: string } {
   let normalizedUrl = endStringWithSlash(url)
     // Return spaces
     .replace(/%20/g, ' ');
@@ -87,8 +89,9 @@ export function extractParamsFromUrlAndInterceptor(url: string, interceptor: Int
  * Get lower cased method name from options object.
  * @param {RequestOptions} input The RequestInfo object.
  * @param {RequestInit} init The RequestInit object (optional).
+ * @return {Method} The request method.
  */
-export function extractMethod(input: RequestInfo, init?: RequestInit) {
+export function extractMethod(input: RequestInfo, init?: RequestInit): Method {
   if (typeof input === 'object') {
     // input is a Request instance
     return Method[input.method.toLowerCase() as keyof typeof Method];

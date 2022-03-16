@@ -31,7 +31,7 @@ function enhanceInterceptedRequest(req: Request, interceptor: Interceptor): Netm
 }
 
 /**
- * Get a default response object params.
+ * Return a default response object params.
  * @return {NetmockResponse} A default NetmockResponse object.
  */
 function getDefaultResponseParams(): NetmockResponse {

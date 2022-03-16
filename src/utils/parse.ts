@@ -5,7 +5,7 @@
  * @param {string} str The string to check.
  * @return {string} The same sting ends with slash
  */
-export function endStringWithSlash(str: string) {
+export function endStringWithSlash(str: string): string {
   const lastChar = str.slice(-1);
   if (lastChar === '/') {
     return str;

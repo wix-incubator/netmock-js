@@ -1,17 +1,18 @@
 import { Method } from '../types/base';
 import { InterceptorsDictionary } from '../types/desk';
+import { Interceptor } from '../types/interceptor';
 import { settings } from '../classes/settings';
 
 import { extractKeyFromInput } from './extract';
-import { Interceptor } from '../types/interceptor';
 
 /**
  * Check for direct match between the endpoint and interceptors dictionary.
  * @param {InterceptorsDictionary} interceptors The interceptors dictionary.
  * @param {string} key The endpoint key.
  * @param {method} method The endpoint method
+ * @return {Interceptor | undefined} An interceptor match for direct match.
  */
-function matchDirect(interceptors: InterceptorsDictionary, key: string, method: Method) {
+function matchDirect(interceptors: InterceptorsDictionary, key: string, method: Method): Interceptor | undefined {
   return interceptors[method][key];
 }
 
@@ -20,8 +21,9 @@ function matchDirect(interceptors: InterceptorsDictionary, key: string, method: 
  * @param {InterceptorsDictionary} interceptors The interceptors dictionary.
  * @param {string} key The endpoint key.
  * @param {method} method The endpoint method
+ * @return {Interceptor | undefined} An interceptor match for regexp match.
  */
-function matchRegExp(interceptors: InterceptorsDictionary, key: string, method: Method) {
+function matchRegExp(interceptors: InterceptorsDictionary, key: string, method: Method): Interceptor | undefined {
   let match: Interceptor | undefined;
 
   Object
@@ -47,8 +49,9 @@ function matchRegExp(interceptors: InterceptorsDictionary, key: string, method: 
  * @param {InterceptorsDictionary} interceptors The interceptors dictionary.
  * @param {string} key The endpoint key.
  * @param {method} method The endpoint method
+ * @return {Interceptor | undefined} An interceptor match for dynamic url match.
  */
-function matchDynamic(interceptors: InterceptorsDictionary, key: string, method: Method) {
+function matchDynamic(interceptors: InterceptorsDictionary, key: string, method: Method): Interceptor | undefined {
   let match: Interceptor | undefined;
 
   Object
@@ -91,13 +94,13 @@ function matchDynamic(interceptors: InterceptorsDictionary, key: string, method:
  * Find the best interceptor to intercept the request.
  * @param interceptors
  * @param params
- * @return {InterceptionHandler} The handler function of the best interceptor.
+ * @return {Interceptor | undefined} The handler function of the best interceptor.
  * @throws {ReferenceError} Network is disabled anf no interceptor found.
  */
 export function findInterceptor(
   interceptors: InterceptorsDictionary,
   params: { input: RequestInfo, method: Method },
-) {
+): Interceptor | undefined {
   const { input, method } = params;
   const key = extractKeyFromInput(input);
 
