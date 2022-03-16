@@ -149,14 +149,14 @@ describe('Interceptors Tests', () => {
             return 'Im a regular response';
           });
 
-          const resMock = await fetch('https://wix.com?mock=true');
-          const bodyMock = await resMock.text();
+          const resHit = await fetch('https://wix.com?mock=true');
+          const bodyHit = await resHit.text();
 
-          const resRegular = await fetch('https://wix.com');
-          const bodyRegular = await resRegular.text();
+          const resMiss = await fetch('https://wix.com');
+          const bodyMiss = await resMiss.text();
 
-          expect(bodyMock).toBe('Im a mock!');
-          expect(bodyRegular).toBe('Im a regular response');
+          expect(bodyHit).toBe('Im a mock!');
+          expect(bodyMiss).toBe('Im a regular response');
         });
 
         it('should use a request query in response', async () => {
@@ -215,8 +215,51 @@ describe('Interceptors Tests', () => {
   });
 
   describe('Interceptors Network Methods Tests', () => {
-    it('should intercept a post request', () => { // TODO
+    it('should intercept a post request', async () => {
+      netmock.mock.post('https://wix.com', () => 'Mocked Text');
 
+      const res = await fetch('https://wix.com', { method: 'POST' });
+      const body = await res.text();
+
+      expect(body).toBe('Mocked Text');
+    });
+
+    it('should intercept a put request', async () => {
+      netmock.mock.put('https://wix.com', () => 'Mocked Text');
+
+      const res = await fetch('https://wix.com', { method: 'PUT' });
+      const body = await res.text();
+
+      expect(body).toBe('Mocked Text');
+    });
+
+    it('should intercept a patch request', async () => {
+      netmock.mock.patch('https://wix.com', () => 'Mocked Text');
+
+      const res = await fetch('https://wix.com', { method: 'PATCH' });
+      const body = await res.text();
+
+      expect(body).toBe('Mocked Text');
+    });
+
+    it('should intercept a delete request', async () => {
+      netmock.mock.delete('https://wix.com', () => 'Mocked Text');
+
+      const res = await fetch('https://wix.com', { method: 'DELETE' });
+      const body = await res.text();
+
+      expect(body).toBe('Mocked Text');
+    });
+
+    it('should intercept a post request but not a get request tto the same route', async () => {
+      netmock.mock.post('https://wix.com', () => 'Mocked Text');
+
+      const resHit = await fetch('https://wix.com', { method: 'POST' });
+      const resMiss = () => fetch('https://wix.com');
+      const bodyHit = await resHit.text();
+
+      expect(bodyHit).toBe('Mocked Text');
+      await expect(resMiss).toThrow('Endpoint not mocked GET');
     });
   });
 });

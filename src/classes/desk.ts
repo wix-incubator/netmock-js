@@ -5,7 +5,9 @@ import { overrideFetch, restoreFetchOverride } from '../utils/override';
 import { Singleton } from '../utils/singleton';
 
 export class Desk {
-  interceptors: InterceptorsDictionary = { get: {}, post: {} };
+  interceptors: InterceptorsDictionary = {
+    get: {}, post: {}, put: {}, patch: {}, delete: {},
+  };
 
   /**
    * The Desk class provides an api to register interceptors to mock network calls
@@ -41,11 +43,46 @@ export class Desk {
   }
 
   /**
+   * Register a post interceptor.
+   * @param {string | RegExp} url The interceptor's url.
+   * @param {InterceptionHandler} handler An interceptor handler function.
+   */
+  put(url: string | RegExp, handler: InterceptionHandler) {
+    const key = extractKeyFromInput(url);
+    const paramsNames = extractParamsNamesFromInput(url);
+    this.interceptors.put[key] = { key, handler, paramsNames };
+  }
+
+  /**
+   * Register a post interceptor.
+   * @param {string | RegExp} url The interceptor's url.
+   * @param {InterceptionHandler} handler An interceptor handler function.
+   */
+  patch(url: string | RegExp, handler: InterceptionHandler) {
+    const key = extractKeyFromInput(url);
+    const paramsNames = extractParamsNamesFromInput(url);
+    this.interceptors.patch[key] = { key, handler, paramsNames };
+  }
+
+  /**
+   * Register a post interceptor.
+   * @param {string | RegExp} url The interceptor's url.
+   * @param {InterceptionHandler} handler An interceptor handler function.
+   */
+  delete(url: string | RegExp, handler: InterceptionHandler) {
+    const key = extractKeyFromInput(url);
+    const paramsNames = extractParamsNamesFromInput(url);
+    this.interceptors.delete[key] = { key, handler, paramsNames };
+  }
+
+  /**
    * Clean the desk.
    * Clear the interceptor's dictionary.
    */
   cleanup() {
-    this.interceptors = { get: {}, post: {} };
+    this.interceptors = {
+      get: {}, post: {}, put: {}, patch: {}, delete: {},
+    };
     overrideFetch(this.interceptors);
   }
 
