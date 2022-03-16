@@ -210,6 +210,16 @@ describe('Interceptors Tests', () => {
       });
 
       describe('Interceptor Hierarchy', () => {
+        it('should override an interceptor if mocked the same url twice', async () => {
+          netmock.mock.get('https://wix.com', () => 'Mocked Text');
+          netmock.mock.get('https://wix.com', () => 'Text Override');
+
+          const res = await fetch('https://wix.com');
+          const body = await res.text();
+
+          expect(body).toBe('Text Override');
+        });
+
         it('should intercept a direct mock over regexp and dynamic', async () => {
           netmock.mock.get('https://wix.com/exact/route/to/match', () => 'Exact Match');
           netmock.mock.get(/exact/, () => 'RegExp Match');
