@@ -210,6 +210,26 @@ describe('Interceptors Tests', () => {
       });
 
       describe('Interceptor Hierarchy', () => {
+        it('should intercept a direct mock over regexp and dynamic', async () => {
+          netmock.mock.get('https://wix.com/exact/route/to/match', () => 'Exact Match');
+          netmock.mock.get(/exact/, () => 'RegExp Match');
+          netmock.mock.get('https://wix.com/:dynamic/route/to/match', () => 'Dynamic Match');
+
+          const res = await fetch('https://wix.com/exact/route/to/match');
+          const body = await res.text();
+
+          expect(body).toBe('Exact Match');
+        });
+
+        it('should intercept a regexp mock over dynamic', async () => {
+          netmock.mock.get(/regexp/, () => 'RegExp Match');
+          netmock.mock.get('https://wix.com/:dynamic/but/to/regexp', () => 'Dynamic Match');
+
+          const res = await fetch('https://wix.com/123/but/to/regexp');
+          const body = await res.text();
+
+          expect(body).toBe('RegExp Match');
+        });
       });
     });
   });
