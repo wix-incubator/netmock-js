@@ -58,6 +58,22 @@ describe('Interceptors Tests', () => {
           expect(res.status).toEqual(400);
         });
 
+        it('should mock response status code', async () => {
+          netmock.mock.get('https://wix.com').reply('Mocked Text').statusCode(400);
+
+          const res = await fetch('https://wix.com');
+
+          expect(res.status).toEqual(400);
+        });
+
+        it('should mock response status code', async () => {
+          netmock.mock.get('https://wix.com').reply('Mocked Text').params({ status: 400 });
+
+          const res = await fetch('https://wix.com');
+
+          expect(res.status).toEqual(400);
+        });
+
         it('should mock response headers', async () => {
           netmock.mock.get('https://wix.com', (_, res) => {
             res.headers = { accept: 'text/html' };

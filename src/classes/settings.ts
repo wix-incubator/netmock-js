@@ -1,7 +1,7 @@
 import { singletonize } from '../utils/singleton';
 
 /**
- * the settings class provides an api to modify Netmock settings.
+ * The settings class provides an api to modify Netmock settings.
  */
 export class Settings {
   private allowNetworkRequests = false;

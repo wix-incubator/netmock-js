@@ -11,7 +11,8 @@ export interface NetmockRequest extends Request {
   params: { [key: string]: string },
 }
 
-export interface NetmockResponse {
+export interface NetmockResponse<T = any> {
+  body: T | null
   status: number
   delay: number,
   statusText?: string,

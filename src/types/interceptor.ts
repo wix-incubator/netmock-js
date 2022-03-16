@@ -1,9 +1,12 @@
-import { NetmockRequest, NetmockResponse } from './base';
+import { NetmockResponse } from '../classes/netmock-response';
 
-export type InterceptionHandler<T = any> = (req: NetmockRequest, res: NetmockResponse) => T;
+import { NetmockRequest } from './base';
 
-export interface Interceptor {
+export type InterceptionHandler<T = any> = (req: NetmockRequest, res: NetmockResponse<T>) => T;
+
+export interface Interceptor<T = any> {
   key: string,
-  handler: InterceptionHandler,
+  res: NetmockResponse<T>,
+  handler?: InterceptionHandler<T>,
   paramsNames: string[],
 }

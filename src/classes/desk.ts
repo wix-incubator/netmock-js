@@ -1,7 +1,10 @@
 import { InterceptorsDictionary } from '../types/desk';
 import { InterceptionHandler } from '../types/interceptor';
+import { Method } from '../types/base';
 import { extractKeyFromInput, extractParamsNamesFromInput } from '../utils/extract';
 import { overrideFetch, restoreFetchOverride } from '../utils/override';
+
+import { NetmockResponse } from './netmock-response';
 import { singletonize } from '../utils/singleton';
 
 /**
@@ -21,58 +24,77 @@ export class Desk {
   }
 
   /**
+   * Register an interceptor to its correspondence method key.
+   * @param {Method} method The request method
+   * @param {string | RegExp} url The request url.
+   * @param {InterceptionHandler} handler The interceptor handler function (optional)
+   * @return {NetmockResponse} The interceptor NetmockResponse instance.
+   * @private
+   */
+  private register(method: Method, url: string | RegExp, handler?: InterceptionHandler) {
+    const key = extractKeyFromInput(url);
+    const paramsNames = extractParamsNamesFromInput(url);
+
+    const res = new NetmockResponse();
+    if (!handler) {
+      this.interceptors[method][key] = { key, res, paramsNames };
+      return res;
+    }
+    this.interceptors[method][key] = {
+      key, handler, res, paramsNames,
+    };
+
+    return res;
+  }
+
+  /**
    * Register a get interceptor.
-   * @param {string | RegExp} url The interceptor's url.
-   * @param {InterceptionHandler} handler An interceptor handler function.
+   * @param {string | RegExp} url The request url.
+   * @param {InterceptionHandler} handler The interceptor handler function (optional)
+   * @return {NetmockResponse} The interceptor NetmockResponse instance;
    */
-  get(url: string | RegExp, handler: InterceptionHandler) {
-    const key = extractKeyFromInput(url);
-    const paramsNames = extractParamsNamesFromInput(url);
-    this.interceptors.get[key] = { key, handler, paramsNames };
+  get(url: string | RegExp, handler?: InterceptionHandler) {
+    return this.register(Method.get, url, handler);
   }
 
   /**
    * Register a post interceptor.
-   * @param {string | RegExp} url The interceptor's url.
-   * @param {InterceptionHandler} handler An interceptor handler function.
+   * @param {string | RegExp} url The request url.
+   * @param {InterceptionHandler} handler The interceptor handler function (optional)
+   * @return {NetmockResponse} The interceptor NetmockResponse instance;
    */
-  post(url: string | RegExp, handler: InterceptionHandler) {
-    const key = extractKeyFromInput(url);
-    const paramsNames = extractParamsNamesFromInput(url);
-    this.interceptors.post[key] = { key, handler, paramsNames };
+  post(url: string | RegExp, handler?: InterceptionHandler) {
+    return this.register(Method.post, url, handler);
   }
 
   /**
    * Register a post interceptor.
-   * @param {string | RegExp} url The interceptor's url.
-   * @param {InterceptionHandler} handler An interceptor handler function.
+   * @param {string | RegExp} url The request url.
+   * @param {InterceptionHandler} handler The interceptor handler function (optional)
+   * @return {NetmockResponse} The interceptor NetmockResponse instance;
    */
-  put(url: string | RegExp, handler: InterceptionHandler) {
-    const key = extractKeyFromInput(url);
-    const paramsNames = extractParamsNamesFromInput(url);
-    this.interceptors.put[key] = { key, handler, paramsNames };
+  put(url: string | RegExp, handler?: InterceptionHandler) {
+    return this.register(Method.put, url, handler);
   }
 
   /**
    * Register a post interceptor.
-   * @param {string | RegExp} url The interceptor's url.
-   * @param {InterceptionHandler} handler An interceptor handler function.
+   * @param {string | RegExp} url The request url.
+   * @param {InterceptionHandler} handler The interceptor handler function (optional)
+   * @return {NetmockResponse} The interceptor NetmockResponse instance;
    */
-  patch(url: string | RegExp, handler: InterceptionHandler) {
-    const key = extractKeyFromInput(url);
-    const paramsNames = extractParamsNamesFromInput(url);
-    this.interceptors.patch[key] = { key, handler, paramsNames };
+  patch(url: string | RegExp, handler?: InterceptionHandler) {
+    return this.register(Method.patch, url, handler);
   }
 
   /**
    * Register a post interceptor.
-   * @param {string | RegExp} url The interceptor's url.
-   * @param {InterceptionHandler} handler An interceptor handler function.
+   * @param {string | RegExp} url The request url.
+   * @param {InterceptionHandler} handler The interceptor handler function (optional)
+   * @return {NetmockResponse} The interceptor NetmockResponse instance;
    */
-  delete(url: string | RegExp, handler: InterceptionHandler) {
-    const key = extractKeyFromInput(url);
-    const paramsNames = extractParamsNamesFromInput(url);
-    this.interceptors.delete[key] = { key, handler, paramsNames };
+  delete(url: string | RegExp, handler?: InterceptionHandler) {
+    return this.register(Method.delete, url, handler);
   }
 
   /**

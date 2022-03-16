@@ -1,5 +1,5 @@
 import { InterceptorsDictionary } from '../types/desk';
-import { NetmockRequest, NetmockResponse } from '../types/base';
+import { NetmockRequest } from '../types/base';
 import { Interceptor } from '../types/interceptor';
 
 import { findInterceptor } from './interceptor';
@@ -31,17 +31,6 @@ function enhanceInterceptedRequest(req: Request, interceptor: Interceptor): Netm
 }
 
 /**
- * Return a default response object params.
- * @return {NetmockResponse} A default NetmockResponse object.
- */
-function getDefaultResponseParams(): NetmockResponse {
-  return {
-    status: 200,
-    delay: 0,
-  };
-}
-
-/**
  * Override the Fetch API fetch() function
  */
 export function overrideFetch(interceptors: InterceptorsDictionary) {
@@ -55,15 +44,19 @@ export function overrideFetch(interceptors: InterceptorsDictionary) {
 
     const request = new global.Request(input, init);
     const req = enhanceInterceptedRequest(request, interceptor);
-    const res = getDefaultResponseParams();
+    const res = interceptor.res;
 
-    const body = interceptor.handler(req, res);
-    const bodyString = typeof body === 'string' ? body : JSON.stringify(body);
+    if (interceptor.handler) {
+      res.body = interceptor.handler(req, res);
+    }
 
-    const response = new global.Response(bodyString, res);
+    const stringifyBody = res.stringifyBody();
+    const responseParams = res.getResponseParams();
+
+    const response = new global.Response(stringifyBody, responseParams);
     const responsePromise = new Promise<Response>((resolve) => {
       const resolveResponse = () => resolve(response);
-      setTimeout(resolveResponse, res.delay);
+      setTimeout(resolveResponse, responseParams.delay);
     });
 
     return responsePromise;

@@ -31,6 +31,7 @@
         "@typescript-eslint/lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
         "object-shorthand": ["error", "consistent"],
         "class-methods-use-this": "off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "prefer-destructuring": "off"
     }
 }
