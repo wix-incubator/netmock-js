@@ -13,6 +13,7 @@ export interface NetmockRequest extends Request {
 
 export interface NetmockResponse {
   status: number
+  delay: number,
   statusText?: string,
   headers?: { [key: string]: string },
 }

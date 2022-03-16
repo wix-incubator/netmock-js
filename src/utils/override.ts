@@ -37,6 +37,7 @@ function enhanceInterceptedRequest(req: Request, interceptor: Interceptor): Netm
 function getDefaultResponseParams(): NetmockResponse {
   return {
     status: 200,
+    delay: 0,
   };
 }
 
@@ -60,7 +61,12 @@ export function overrideFetch(interceptors: InterceptorsDictionary) {
     const bodyString = typeof body === 'string' ? body : JSON.stringify(body);
 
     const response = new global.Response(bodyString, res);
-    return Promise.resolve(response);
+    const responsePromise = new Promise<Response>((resolve) => {
+      const resolveResponse = () => resolve(response);
+      setTimeout(resolveResponse, res.delay);
+    });
+
+    return responsePromise;
   };
 }
 
