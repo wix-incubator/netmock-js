@@ -71,7 +71,7 @@ describe('Interceptors Tests', () => {
         expect(body).toBe('Bingo!');
       });
 
-      it.skip('should mock a request url with two params', async () => { // TODO
+      it('should mock a request url with two params', async () => {
         netmock.mock.get('https://wix.com/:id/:name', (req: NetmockRequest) => {
           if (req.params.id === '5' && req.params.name === 'Peter Parker') {
             return 'Bingo!';
@@ -80,6 +80,24 @@ describe('Interceptors Tests', () => {
         });
 
         const res = await fetch('https://wix.com/5/Peter Parker');
+        const body = await res.text();
+
+        expect(body).toBe('Bingo!');
+      });
+
+      it('should mock a request url with three params', async () => {
+        netmock.mock.get('https://wix.com/:id/:name/photo/:city', (req: NetmockRequest) => {
+          if (
+            req.params.id === '5'
+            && req.params.name === 'Peter Parker'
+            && req.params.city === 'New York'
+          ) {
+            return 'Bingo!';
+          }
+          return 'No luck...';
+        });
+
+        const res = await fetch('https://wix.com/5/Peter Parker/photo/New York');
         const body = await res.text();
 
         expect(body).toBe('Bingo!');

@@ -4,10 +4,10 @@
   "description": "A javascript network mocker for tests",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint '{**/*,*}.{js,ts}'",
+    "lint": "tsc --noEmit && eslint '{**/*,*}.{js,ts}'",
     "lint:fix": "eslint '{**/*,*}.{js,ts}' --fix",
     "test": "npm run lint && npm run testjs",
-    "testjs": "jest"
+    "testjs": "jest --forceExit"
   },
   "repository": {
     "type": "git",

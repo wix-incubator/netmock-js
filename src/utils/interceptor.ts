@@ -2,7 +2,7 @@ import { Method } from '../types/base';
 import { InterceptorsDictionary } from '../types/desk';
 import { settings } from '../classes/settings';
 
-import { getKeyFromInput } from './parse';
+import { extractKeyFromInput } from './extract';
 
 /**
  * Find the best interceptor to intercept the request.
@@ -16,15 +16,17 @@ export function findInterceptor(
   params: { input: RequestInfo, method: Method },
 ) {
   const { input, method } = params;
-  const key = getKeyFromInput(input);
+  const key = extractKeyFromInput(input);
 
   let interceptor;
   let wasFound = false;
+
   // Direct match
   if (!wasFound) {
     interceptor = interceptors[method][key];
     if (!!interceptor) wasFound = true;
   }
+
   // Params match
   if (!wasFound) {
     Object

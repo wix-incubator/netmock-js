@@ -1,6 +1,6 @@
 import { InterceptorsDictionary } from '../types/desk';
 import { InterceptionHandler } from '../types/interceptor';
-import { getKeyFromInput, getParamsNamesFromInput } from '../utils/parse';
+import { extractKeyFromInput, extractParamsNamesFromInput } from '../utils/extract';
 import { overrideFetch, restoreFetchOverride } from '../utils/override';
 import { Singleton } from '../utils/singleton';
 
@@ -24,8 +24,8 @@ export class Desk {
    * @param {InterceptionHandler} handler An interceptor handler function.
    */
   get(url: string, handler: InterceptionHandler) {
-    const key = getKeyFromInput(url);
-    const paramsNames = getParamsNamesFromInput(url);
+    const key = extractKeyFromInput(url);
+    const paramsNames = extractParamsNamesFromInput(url);
     this.interceptors.get[key] = { key, handler, paramsNames };
   }
 
@@ -35,8 +35,8 @@ export class Desk {
    * @param {InterceptionHandler} handler An interceptor handler function.
    */
   post(url: string, handler: InterceptionHandler) {
-    const key = getKeyFromInput(url);
-    const paramsNames = getParamsNamesFromInput(url);
+    const key = extractKeyFromInput(url);
+    const paramsNames = extractParamsNamesFromInput(url);
     this.interceptors.post[key] = { key, handler, paramsNames };
   }
 

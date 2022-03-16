@@ -8,7 +8,7 @@ import { Netmock } from '../src/types/netmock';
 describe('Base Netmock Tests', () => {
   let netmock: Netmock;
 
-  function fetchEndpoint() {
+  function fetchData() {
     return fetch('https://wix.com');
   }
 
@@ -16,15 +16,15 @@ describe('Base Netmock Tests', () => {
     netmock = require('..').default;
   });
 
-  it('should make a real network call if network is enabled and an unmocked request is fetched', async () => {
-    netmock.settings.enableNetwork();
-
-    await expect(fetchEndpoint()).resolves.toBeDefined();
-  });
-
   it('should throw an exception if network is disabled and an unmocked request is fetched', async () => {
     netmock.settings.disableNetwork();
 
-    await expect(fetchEndpoint).toThrow('Endpoint not mocked');
+    await expect(fetchData).toThrow('Endpoint not mocked');
+  });
+
+  it('should make a real network call if network is enabled and an unmocked request is fetched', async () => {
+    netmock.settings.enableNetwork();
+
+    await expect(fetchData()).resolves.toBeDefined();
   });
 });

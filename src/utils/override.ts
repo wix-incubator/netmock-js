@@ -1,18 +1,20 @@
 import { InterceptorsDictionary } from '../types/desk';
-import { findInterceptor } from './interceptors';
-import { getStringEndWithSlash, getMethod, getParamsFromUrlAndInterceptor } from './parse';
 import { NetmockRequest } from '../types/base';
 import { Interceptor } from '../types/interceptor';
+
+import { findInterceptor } from './interceptor';
+import { endStringWithSlash } from './parse';
+import { extractMethod, extractParamsFromUrlAndInterceptor } from './extract';
 
 const originalFetch = global.fetch;
 
 function enhanceRequest(req: Request, interceptor: Interceptor): NetmockRequest {
-  const url = getStringEndWithSlash(req.url);
+  const url = endStringWithSlash(req.url);
 
   const { searchParams } = new URL(url.slice(0, -1));
   const query = Object.fromEntries(searchParams);
 
-  const params = getParamsFromUrlAndInterceptor(url, interceptor);
+  const params = extractParamsFromUrlAndInterceptor(req.url, interceptor);
 
   return {
     ...req,
@@ -26,7 +28,7 @@ function enhanceRequest(req: Request, interceptor: Interceptor): NetmockRequest 
  */
 export function overrideFetch(interceptors: InterceptorsDictionary) {
   global.fetch = (input: RequestInfo, init?: RequestInit): Promise<Response> => {
-    const method = getMethod(input, init);
+    const method = extractMethod(input, init);
     const interceptor = findInterceptor(interceptors, { input, method });
 
     if (!interceptor) {
