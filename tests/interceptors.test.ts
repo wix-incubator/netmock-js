@@ -11,7 +11,7 @@ describe('Interceptors Tests', () => {
     describe('Response Params', () => {
       describe('Response Body', () => {
         it('should mock a string response body', async () => {
-          netmock.mock.get('https://wix.com', (_) => 'Mocked Text');
+          netmock.mock.get('https://wix.com', () => 'Mocked Text');
 
           const res = await fetch('https://wix.com');
           const body = await res.text();
@@ -20,7 +20,7 @@ describe('Interceptors Tests', () => {
         });
 
         it('should mock a number response body', async () => {
-          netmock.mock.get('https://wix.com', (_) => 5);
+          netmock.mock.get('https://wix.com', () => 5);
 
           const res = await fetch('https://wix.com');
           const body = await res.text();
@@ -29,7 +29,7 @@ describe('Interceptors Tests', () => {
         });
 
         it('should mock a json response body', async () => {
-          netmock.mock.get('https://wix.com', (_) => ({ mocked: true }));
+          netmock.mock.get('https://wix.com', () => ({ mocked: true }));
 
           const res = await fetch('https://wix.com');
           const body = await res.json();
@@ -40,7 +40,7 @@ describe('Interceptors Tests', () => {
 
       describe('Other Params', () => {
         it('should mock default response status code 200', async () => {
-          netmock.mock.get('https://wix.com', (_) => 'Mocked Text');
+          netmock.mock.get('https://wix.com', () => 'Mocked Text');
 
           const res = await fetch('https://wix.com');
 
@@ -177,9 +177,46 @@ describe('Interceptors Tests', () => {
   });
 
   describe('Interceptors Match Tests', () => {
+    describe('Interceptor Match', () => {
+      it('should match an explicit url', async () => {
+        netmock.mock.get('https://wix.com/exact/route/to/match', () => 'Mocked Text');
+
+        const resHit = await fetch('https://wix.com/exact/route/to/match');
+        const resMiss = () => fetch('https://wix.com/exact/route/match');
+
+        expect(resHit).toBeDefined();
+        await expect(resMiss).toThrow('Endpoint not mocked');
+      });
+
+      it('should match a RegExp', async () => {
+        const re = /regexp[/].+$/; // Include 'regexp' but not at the end
+        netmock.mock.get(re, () => 'Mocked Text');
+
+        const resHit = await fetch('https://wix.com/route/with/regexp/match');
+        const resMiss = () => fetch('https://wix.com/regular/route/');
+
+        expect(resHit).toBeDefined();
+        await expect(resMiss).toThrow('Endpoint not mocked');
+      });
+
+      it('should match a dynamic url', async () => {
+        netmock.mock.get('https://wix.com/dynamic/route/:id/match', () => 'Mocked Text');
+
+        const resHit = await fetch('https://wix.com/dynamic/route/1024/match');
+        const resMiss = () => fetch('https://wix.com/dynamic/route/1024');
+
+        expect(resHit).toBeDefined();
+        await expect(resMiss).toThrow('Endpoint not mocked');
+      });
+
+      describe('Interceptor Hierarchy', () => {
+      });
+    });
   });
 
-  describe('Interceptors Methods Tests', () => {
+  describe('Interceptors Network Methods Tests', () => {
+    it('should intercept a post request', () => { // TODO
 
+    });
   });
 });

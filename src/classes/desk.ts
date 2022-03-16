@@ -11,7 +11,7 @@ export class Desk {
    * The Desk class provides an api to register interceptors to mock network calls
    * to specific routes.
    * Interceptor provides a URL, method and handler function, that will be called when
-   * the URL is requested by the Fetch API fetch() function.
+   * the url is requested by the Fetch API fetch() function.
    * The interceptor's handler return value is the response for the request.
    */
   constructor() {
@@ -20,10 +20,10 @@ export class Desk {
 
   /**
    * Register a get interceptor.
-   * @param {string} url The interceptor's URL.
+   * @param {string | RegExp} url The interceptor's url.
    * @param {InterceptionHandler} handler An interceptor handler function.
    */
-  get(url: string, handler: InterceptionHandler) {
+  get(url: string | RegExp, handler: InterceptionHandler) {
     const key = extractKeyFromInput(url);
     const paramsNames = extractParamsNamesFromInput(url);
     this.interceptors.get[key] = { key, handler, paramsNames };
@@ -31,10 +31,10 @@ export class Desk {
 
   /**
    * Register a post interceptor.
-   * @param {string} url The interceptor's URL.
+   * @param {string | RegExp} url The interceptor's url.
    * @param {InterceptionHandler} handler An interceptor handler function.
    */
-  post(url: string, handler: InterceptionHandler) {
+  post(url: string | RegExp, handler: InterceptionHandler) {
     const key = extractKeyFromInput(url);
     const paramsNames = extractParamsNamesFromInput(url);
     this.interceptors.post[key] = { key, handler, paramsNames };

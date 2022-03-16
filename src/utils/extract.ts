@@ -19,9 +19,13 @@ function extractUrlFromInput(input: RequestInfo) {
 
 /**
  * Extract an interceptor key from request input.
- * @param {RequestInfo} input The provided url input.
+ * @param {RequestInfo | RegExp} input The provided url or regexp input.
  */
-export function extractKeyFromInput(input: RequestInfo) {
+export function extractKeyFromInput(input: RequestInfo | RegExp) {
+  if (input instanceof RegExp) {
+    return `${input}`;
+  }
+
   const url = extractUrlFromInput(input);
 
   // Trim url
@@ -36,7 +40,12 @@ export function extractKeyFromInput(input: RequestInfo) {
  * @param {RequestInfo} input The provided url input.
  * @return {string[]} An array of params names.
  */
-export function extractParamsNamesFromInput(input: RequestInfo) {
+export function extractParamsNamesFromInput(input: RequestInfo | RegExp) {
+  if (input instanceof RegExp) {
+    // RegExp with url params is not supported
+    return [];
+  }
+
   const url = extractUrlFromInput(input);
 
   return (url
