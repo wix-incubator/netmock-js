@@ -44,7 +44,7 @@ export class NetmockResponse<T> implements TNetmockResponse<T> {
    * @param {Partial<NetmockResponseParams>} params The new response params.
    * @return {Response} This response instance.
    */
-  params(params: Partial<NetmockResponseParams>) {
+  params(params: Partial<NetmockResponseParams> = {}) {
     this.delay = params.delay ?? this.delay;
     this.headers = params.headers ?? this.headers;
     this.statusText = params.statusText ?? this.statusText;

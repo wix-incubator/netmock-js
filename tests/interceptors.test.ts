@@ -47,7 +47,7 @@ describe('Interceptors Tests', () => {
           expect(res.status).toEqual(200);
         });
 
-        it('should mock response status code', async () => {
+        it('should mock response status code with handler', async () => {
           netmock.mock.get('https://wix.com', (_, res) => {
             res.status = 400;
             return 'Mocked Text';
@@ -58,20 +58,21 @@ describe('Interceptors Tests', () => {
           expect(res.status).toEqual(400);
         });
 
-        it('should mock response status code', async () => {
-          netmock.mock.get('https://wix.com').reply('Mocked Text').statusCode(400);
+        it('should mock response status code with reply', async () => {
+          netmock.mock.get('https://wix.com').reply('Mocked Text').params({ status: 400 });
 
           const res = await fetch('https://wix.com');
 
           expect(res.status).toEqual(400);
         });
 
-        it('should mock response status code', async () => {
-          netmock.mock.get('https://wix.com').reply('Mocked Text').params({ status: 400 });
+        it('should mock default response params with reply', async () => {
+          netmock.mock.get('https://wix.com').reply('Mocked Text').statusCode(400);
+          netmock.mock.get('https://wix.com').reply('Mocked Text').params();
 
           const res = await fetch('https://wix.com');
 
-          expect(res.status).toEqual(400);
+          expect(res.status).toEqual(200);
         });
 
         it('should mock response headers', async () => {
