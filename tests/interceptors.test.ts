@@ -202,7 +202,7 @@ describe('Interceptors Tests', () => {
         const resMiss = () => fetch('https://wix.com/exact/route/match');
 
         expect(resHit).toBeDefined();
-        await expect(resMiss).toThrow('Endpoint not mocked');
+        await expect(resMiss).rejects.toThrow('Endpoint not mocked');
       });
 
       it('should match a RegExp', async () => {
@@ -213,7 +213,7 @@ describe('Interceptors Tests', () => {
         const resMiss = () => fetch('https://wix.com/regular/route/');
 
         expect(resHit).toBeDefined();
-        await expect(resMiss).toThrow('Endpoint not mocked');
+        await expect(resMiss).rejects.toThrow('Endpoint not mocked');
       });
 
       it('should match a dynamic url', async () => {
@@ -223,7 +223,7 @@ describe('Interceptors Tests', () => {
         const resMiss = () => fetch('https://wix.com/dynamic/route/1024');
 
         expect(resHit).toBeDefined();
-        await expect(resMiss).toThrow('Endpoint not mocked');
+        await expect(resMiss).rejects.toThrow('Endpoint not mocked');
       });
 
       describe('Interceptor Hierarchy', () => {
@@ -306,7 +306,7 @@ describe('Interceptors Tests', () => {
       const bodyHit = await resHit.text();
 
       expect(bodyHit).toBe('Mocked Text');
-      await expect(resMiss).toThrow('Endpoint not mocked GET');
+      await expect(resMiss).rejects.toThrow('Endpoint not mocked GET');
     });
   });
 });

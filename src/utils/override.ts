@@ -35,31 +35,35 @@ function enhanceInterceptedRequest(req: Request, interceptor: Interceptor): Netm
  */
 export function overrideFetch(interceptors: InterceptorsDictionary) {
   global.fetch = (input: RequestInfo, init?: RequestInit): Promise<Response> => {
-    const method = extractMethod(input, init);
-    const interceptor = findInterceptor(interceptors, { input, method });
+    try {
+      const method = extractMethod(input, init);
+      const interceptor = findInterceptor(interceptors, { input, method });
 
-    if (!interceptor) {
-      return originalFetch(input, init);
+      if (!interceptor) {
+        return originalFetch(input, init);
+      }
+
+      const request = new global.Request(input, init);
+      const req = enhanceInterceptedRequest(request, interceptor);
+      const res = interceptor.res;
+
+      if (interceptor.handler) {
+        res.body = interceptor.handler(req, res);
+      }
+
+      const stringifyBody = res.stringifyBody();
+      const responseParams = res.getResponseParams();
+
+      const response = new global.Response(stringifyBody, responseParams);
+      const responsePromise = new Promise<Response>((resolve) => {
+        const resolveResponse = () => resolve(response);
+        setTimeout(resolveResponse, responseParams.delay);
+      });
+
+      return responsePromise;
+    } catch (e) {
+      return Promise.reject(e);
     }
-
-    const request = new global.Request(input, init);
-    const req = enhanceInterceptedRequest(request, interceptor);
-    const res = interceptor.res;
-
-    if (interceptor.handler) {
-      res.body = interceptor.handler(req, res);
-    }
-
-    const stringifyBody = res.stringifyBody();
-    const responseParams = res.getResponseParams();
-
-    const response = new global.Response(stringifyBody, responseParams);
-    const responsePromise = new Promise<Response>((resolve) => {
-      const resolveResponse = () => resolve(response);
-      setTimeout(resolveResponse, responseParams.delay);
-    });
-
-    return responsePromise;
   };
 }
 
