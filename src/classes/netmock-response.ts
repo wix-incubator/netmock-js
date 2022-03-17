@@ -1,6 +1,4 @@
-import { NetmockResponse as TNetmockResponse } from '../types/base';
-
-type NetmockResponseParams = Omit<TNetmockResponse, 'body'>;
+import { NetmockResponse as TNetmockResponse, NetmockResponseParams } from '../types/base';
 
 /**
  * The netmock response class provides an api to get, set and parse

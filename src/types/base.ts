@@ -18,3 +18,5 @@ export interface NetmockResponse<T = any> {
   statusText?: string,
   headers?: { [key: string]: string },
 }
+
+export type NetmockResponseParams = Omit<NetmockResponse, 'body'>;
