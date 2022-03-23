@@ -1,5 +1,5 @@
 {
-  "name": "netmock",
+  "name": "netmock-js",
   "version": "1.0.0",
   "description": "A javascript network mocker for tests",
   "main": "index.js",
