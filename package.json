@@ -8,7 +8,7 @@
     "lint:fix": "eslint '{**/*,*}.{js,ts}' --fix",
     "test": "npm run lint && npm run testjs",
     "testjs": "jest --forceExit",
-    "release": "bash scripts/release.sh"
+    "release": "bash -e scripts/release.sh"
   },
   "repository": {
     "type": "git",
