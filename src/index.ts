@@ -2,7 +2,7 @@ import { registerMockedEndpoint } from './mockedEndpointsService';
 import { MockedEndpointHandler, Netmock } from './types';
 
 export { allowRealNetwork } from './settings';
-
+export { resp } from './NetmockResponse';
 export * from './types';
 
 export const netmock: Netmock = {
