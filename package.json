@@ -4,7 +4,7 @@
   "description": "A javascript network mocker for tests",
   "main": "lib/index.js",
   "scripts": {
-    "tsc": "tsc --noEmit",
+    "tsc": "tsc",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint '{**/*,*}.{js,ts}'",
     "lint:fix": "eslint '{**/*,*}.{js,ts}' --fix",
