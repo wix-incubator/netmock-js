@@ -1,4 +1,4 @@
-import type { MockedEndpoint, MockedEndpointHandler, MethodType } from './types';
+import type { MockedEndpoint, MockedEndpointHandler, Method } from './types';
 import { getMockedEndpointKey, convertUrlToRegex } from './utils';
 
 function getCleanState() {
@@ -8,7 +8,7 @@ function getCleanState() {
 }
 
  type MockedEndpointsDictionary = {
-   [method in MethodType]: {
+   [method in Method]: {
      [key: string]: MockedEndpoint
    }
  };
@@ -19,7 +19,7 @@ export function reset() {
   mockedEndpoints = getCleanState();
 }
 
-export function registerMockedEndpoint(method: MethodType, url: string | RegExp, handler: MockedEndpointHandler) {
+export function registerMockedEndpoint(method: Method, url: string | RegExp, handler: MockedEndpointHandler) {
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
   mockedEndpoints[method][key] = {
@@ -27,7 +27,7 @@ export function registerMockedEndpoint(method: MethodType, url: string | RegExp,
   };
 }
 
-export function findMockedEndpoint(input: RequestInfo, method: MethodType): MockedEndpoint | undefined {
+export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEndpoint | undefined {
   const key = getMockedEndpointKey(input);
   const matchDirect = mockedEndpoints[method][key];
   const matchByParams = () => Object

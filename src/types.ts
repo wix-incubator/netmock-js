@@ -1,4 +1,4 @@
-export type MethodType = 'get' | 'post' | 'put' | 'patch' | 'delete';
+export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 export interface NetmockRequest extends Request {
   query: { [key: string]: string },
   params: { [key: string]: string },

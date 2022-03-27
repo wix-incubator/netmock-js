@@ -1,4 +1,4 @@
-import { MethodType } from './types';
+import { Method } from './types';
 
 export function getUrl(input: RequestInfo): string {
   if (typeof input === 'string') { // If input is a string, it is the url
@@ -17,11 +17,11 @@ export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
 }
 
-export function getRequestMethod(input: RequestInfo, init?: RequestInit): MethodType {
+export function getRequestMethod(input: RequestInfo, init?: RequestInit): Method {
   if (typeof input === 'object') { // input is a Request instance
-    return input.method.toLowerCase() as MethodType;
+    return input.method.toLowerCase() as Method;
   }
-  return init?.method ? init.method.toLowerCase() as MethodType : 'get';
+  return init?.method ? init.method.toLowerCase() as Method : 'get';
 }
 
 function escapeRegExpChars(str: string) {

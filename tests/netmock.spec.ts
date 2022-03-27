@@ -1,5 +1,5 @@
 import { resp } from '../src/NetmockResponse';
-import { MethodType } from '../src/types';
+import { Method } from '../src/types';
 
 describe('Netmock', () => {
   let netmock: typeof import('../src').netmock;
@@ -27,10 +27,10 @@ describe('Netmock', () => {
     expect(body).toBe('Mocked Text');
   });
   it('should work with explicit method as option', async () => {
-    function mockUrl(url: string, method: MethodType) {
+    function mockUrl(url: string, method: Method) {
       netmock[method](url, () => method);
     }
-    async function testUrl(url: string, method: MethodType) {
+    async function testUrl(url: string, method: Method) {
       const res = await fetch(url, { method });
       const body = await res.text();
       expect(body).toBe(method);
