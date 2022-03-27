@@ -39,6 +39,8 @@
     "typescript": "^4.6.2"
   },
   "files": [
-    "src", "lib","LICENSE"
+    "src",
+    "lib",
+    "LICENSE"
   ]
 }
