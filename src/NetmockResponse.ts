@@ -79,6 +79,6 @@ export class NetmockResponse<T> {
  * @param body the response body
  * @return {Response} This response instance for chaining purposes.
  */
-export function resp(body?: string) {
-  return new NetmockResponse(body);
+export function resp<T>(body?: T) {
+  return new NetmockResponse<T>(body);
 }
