@@ -9,7 +9,7 @@
     "lint": "eslint '{**/*,*}.{js,ts}'",
     "lint:fix": "eslint '{**/*,*}.{js,ts}' --fix",
     "test": "npm run lint && npm run testjs",
-    "testjs": "jest --forceExit",
+    "testjs": "jest",
     "release": "bash -e scripts/release.sh"
   },
   "repository": {
