@@ -32,6 +32,7 @@
         "object-shorthand": ["error", "consistent"],
         "class-methods-use-this": "off",
         "no-param-reassign": "off",
+        "@typescript-eslint/no-use-before-define": "off",
         "prefer-destructuring": "off"
     }
 }
