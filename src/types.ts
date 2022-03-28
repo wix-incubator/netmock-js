@@ -39,7 +39,3 @@ export interface Netmock {
 }
 
 export type Headers = { [key: string]: string };
-
-export interface NetmockResponseClass<T> {
-
-}
