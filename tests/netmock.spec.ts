@@ -101,7 +101,7 @@ describe('Netmock', () => {
           expect(res.status).toEqual(400);
           expect(res.statusText).toEqual('wow');
           expect(await res.text()).toEqual('niryo');
-          const headers = Object.fromEntries(res.headers); // ?
+          const headers = Object.fromEntries(res.headers);
           expect(headers).toEqual(expect.objectContaining({ accept: 'text/html' }));
         });
         it('should mock default response status code 200', async () => {
@@ -122,7 +122,7 @@ describe('Netmock', () => {
           netmock.get('https://wix.com', () => resp('Mocked Text').headers({ accept: 'text/html' }));
 
           const res = await fetch('https://wix.com');
-          const headers = Object.fromEntries(res.headers); // ?
+          const headers = Object.fromEntries(res.headers);
           expect(headers).toEqual(expect.objectContaining({ accept: 'text/html' }));
         });
       });
