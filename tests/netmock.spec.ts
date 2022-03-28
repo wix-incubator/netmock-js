@@ -49,7 +49,7 @@ describe('Netmock', () => {
   });
 
   describe('mockedEndpoint Handler Functions Tests', () => {
-    describe('Response Params', () => {
+    describe('Response', () => {
       describe('Response Body', () => {
         it('should mock a string response body', async () => {
           netmock.get('https://wix.com', () => 'Mocked Text');

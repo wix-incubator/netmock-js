@@ -13,7 +13,15 @@ export interface NetmockResponseFields<T = any> {
 
 export type NetmockResponseParams = Omit<NetmockResponseFields, 'body'>;
 
-export type MockedEndpointHandler<T = any> = (req: NetmockRequest) => T;
+export interface NetmockResponseType<Body> {
+  delay: (value: number) => NetmockResponseType<Body>;
+  statusCode: (value: number) => NetmockResponseType<Body>;
+  headers: (value: Headers) => NetmockResponseType<Body>;
+  set: (value: Partial<NetmockResponseFields>) => NetmockResponseType<Body>;
+  stringifyBody: () => string;
+  getResponseParams: () => NetmockResponseParams;
+}
+export type MockedEndpointHandler<T = any> = (req: NetmockRequest) => T | NetmockResponseType<T>;
 
 export interface MockedEndpoint<T = any> {
   key: string,
