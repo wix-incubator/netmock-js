@@ -48,6 +48,11 @@ export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEn
   return matchDirect || matchByParams();
 }
 
+export function findMockedMethod(input: RequestInfo) {
+  const methods: Method[] = ['get', 'post', 'put', 'delete', 'patch'];
+  return methods.filter((method) => !!findMockedEndpoint(input, method));
+}
+
 function getHandlerMetadataCollectorWrapper(handler: MockedEndpointHandler, metadata: MockedEndpointMetaData): MockedEndpointHandler {
   return (...params) => {
     metadata.calls.push(params);

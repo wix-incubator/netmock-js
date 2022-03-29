@@ -7,8 +7,13 @@ describe('Mocked Endpoints Match Tests', () => {
     netmock = require('../src').netmock;
   });
 
-  it('should ', () => {
-
+  it('should print a hint on suspected wrong mocked method', async () => {
+    const resMiss = () => fetch('https://wix.com', { method: 'post' });
+    await expect(resMiss).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com'));
+    netmock.get('https://wix.com', () => 'Mocked Text');
+    await expect(resMiss).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com\nThe request is of type POST but netmock could only find mocks for GET'));
+    netmock.put('https://wix.com', () => 'Mocked Text');
+    await expect(resMiss).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com\nThe request is of type POST but netmock could only find mocks for GET,PUT'));
   });
 
   it('should match an explicit url', async () => {
@@ -18,7 +23,7 @@ describe('Mocked Endpoints Match Tests', () => {
     const resMiss = () => fetch('https://wix.com/exact/route/match');
 
     expect(resHit).toBeDefined();
-    await expect(resMiss).rejects.toThrow('Endpoint not mocked');
+    await expect(resMiss).rejects.toThrowError(new Error('Endpoint not mocked: GET https://wix.com/exact/route/match'));
   });
 
   it('should match a RegExp', async () => {
@@ -29,7 +34,7 @@ describe('Mocked Endpoints Match Tests', () => {
     const resMiss = () => fetch('https://wix.com/regular/route/');
 
     expect(resHit).toBeDefined();
-    await expect(resMiss).rejects.toThrow('Endpoint not mocked');
+    await expect(resMiss).rejects.toThrowError(new Error('Endpoint not mocked: GET https://wix.com/regular/route/'));
   });
 
   it('should match a dynamic url', async () => {
@@ -39,7 +44,7 @@ describe('Mocked Endpoints Match Tests', () => {
     const resMiss = () => fetch('https://wix.com/dynamic/route/1024');
 
     expect(resHit).toBeDefined();
-    await expect(resMiss).rejects.toThrow('Endpoint not mocked');
+    await expect(resMiss).rejects.toThrowError('Endpoint not mocked');
   });
 
   describe('Mocked Endpoint Hierarchy', () => {
@@ -51,7 +56,7 @@ describe('Mocked Endpoints Match Tests', () => {
       const bodyHit = await resHit.text();
 
       expect(bodyHit).toBe('Mocked Text');
-      await expect(resMiss).rejects.toThrow('Endpoint not mocked: GET https://wix.com');
+      await expect(resMiss).rejects.toThrowError('Endpoint not mocked: GET https://wix.com');
     });
     it('should override a mocked endpoint if mocked the same url twice', async () => {
       netmock.get('https://wix.com', () => 'Mocked Text');

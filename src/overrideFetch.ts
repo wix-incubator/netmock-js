@@ -1,4 +1,4 @@
-import { findMockedEndpoint } from './mockedEndpointsService';
+import { findMockedEndpoint, findMockedMethod } from './mockedEndpointsService';
 import { getRequestMethod, getUrl } from './utils';
 import { NetmockResponse } from './NetmockResponse';
 import { isRealNetworkAllowed } from './settings';
@@ -18,7 +18,12 @@ export function overrideFetch() {
         if (isRealNetworkAllowed()) {
           return originalFetch(input, init);
         }
-        throw ReferenceError(`Endpoint not mocked: ${method.toUpperCase()} ${url}`);
+        let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
+        const mockedMethods = findMockedMethod(input);
+        if (mockedMethods.length > 0) {
+          message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
+        }
+        throw Error(message);
       }
       const request = new global.Request(input, init);
       const query = Object.fromEntries(new URL(url).searchParams);
