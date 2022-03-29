@@ -1,4 +1,6 @@
-import type { MockedEndpoint, MockedEndpointHandler, Method } from './types';
+import type {
+  MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
+} from './types';
 import { getMockedEndpointKey, convertUrlToRegex } from './utils';
 
 function getCleanState() {
@@ -19,11 +21,20 @@ export function reset() {
   mockedEndpoints = getCleanState();
 }
 
-export function registerMockedEndpoint(method: Method, url: string | RegExp, handler: MockedEndpointHandler) {
+export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
+  const key = getMockedEndpointKey(url);
+  return mockedEndpoints[method][key]?.metadata;
+}
+
+export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler) {
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
+  const metadata = getEmptyMetadata();
   mockedEndpoints[method][key] = {
-    key, handler, urlRegex,
+    key,
+    handler: getHandlerMetadataCollectorWrapper(handler, metadata),
+    urlRegex,
+    metadata,
   };
 }
 
@@ -35,4 +46,17 @@ export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEn
     .find((mockedEndpoint) => mockedEndpoint.urlRegex.test(key));
 
   return matchDirect || matchByParams();
+}
+
+function getHandlerMetadataCollectorWrapper(handler: MockedEndpointHandler, metadata: MockedEndpointMetaData): MockedEndpointHandler {
+  return (...params) => {
+    metadata.calls.push(params);
+    return handler(...params);
+  };
+}
+
+function getEmptyMetadata(): MockedEndpointMetaData {
+  return {
+    calls: [],
+  };
 }

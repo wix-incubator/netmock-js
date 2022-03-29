@@ -23,9 +23,14 @@ export interface NetmockResponseType<Body> {
 }
 export type MockedEndpointHandler<T = any> = (req: NetmockRequest) => T | NetmockResponseType<T>;
 
+
+export type MockedEndpointMetaData = {
+  calls: Parameters<MockedEndpointHandler>[]
+};
 export interface MockedEndpoint<T = any> {
   key: string,
   handler: MockedEndpointHandler<T>,
+  metadata: MockedEndpointMetaData,
   urlRegex: RegExp,
 }
 

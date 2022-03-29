@@ -1,6 +1,7 @@
 import { registerMockedEndpoint } from './mockedEndpointsService';
 import { MockedEndpointHandler, Netmock } from './types';
 
+export { netprob } from './netprob';
 export { allowRealNetwork } from './settings';
 export { resp, NetmockResponse } from './NetmockResponse';
 export * from './types';

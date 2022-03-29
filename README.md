@@ -28,12 +28,12 @@ Add this to your jest config:
 The netmock object allows you to mock the following http method types: `get/post/put/patch/delete`.
 
 params:
- * *url*: string | rout | RegExp
+ * *url*: string | route | RegExp
   
       ```javascript
       netmock.get('https://wix.com/get/some/value', () => {}) // plain url
       netmock.get(/.*wix/, () => {}) // regex
-      netmock.post('https://wix.com/bookings/:user/:id', () => {}) // rout
+      netmock.post('https://wix.com/bookings/:user/:id', () => {}) // route
       ```
     In case of mock collisions, netmock will prefer plain url matching over regex matching over rout matching
  * *handler*: ({query, params}) => responseBody
@@ -58,3 +58,36 @@ Here is the NetmockResponse object API:
 *  delay(delayInMs: number); // simulate response delay
 *  set: (set: (value: Partial<NetmockResponse>)); //a convenient function for setting multiple response fields at once
 
+#### **netprob(method, url) => ProbObject**
+A function that allows you to prob the mocked endpoints and do some assertions on them.
+
+params:
+* *method: string* - The http method of the mocked endpoint (post, get, put, patch, delete);
+* *url: string | route | regex* - The url of the mocked endpoint;
+
+It returns and object with the following methods:
+* *callCount()* - returns the number of times the endpoint has been called.
+* *getRequest(index: number)* - returns the request object for the given call number.
+
+usage:
+```javascript
+    import {netprob} from 'netmock-js';
+    const mockedEndpointUrl = 'https://www.wix.com/:id/:user';
+    netmock.post(mockedEndpointUrl, () => ({}));
+    await fetch('https://www.wix.com/123/blamos', { method: 'post' }); //trigger call 1
+    await fetch('https://www.wix.com/456/blamos2?value=true', { method: 'post' }); //trigger call 2
+    expect(netprob('post', mockedEndpointUrl).callCount()).toEqual(2);
+    expect(netprob('post', mockedEndpointUrl).getRequest(0).params).toEqual({ id: '123', user: 'blamos' });
+    expect(netprob('post', mockedEndpointUrl).getRequest(1).query).toEqual({ value: 'true'});
+```
+
+#### **allowRealNetwork(value: boolean)**
+Netmock will block any real network by default. In order to allow real network requests (to unmocked endpoints), you can do the following:
+```javascript
+import {allowRealNetwork} from 'netmock-js;
+beforeEach(() => {
+  allowRealNetwork(true);
+});
+```
+
+Allowing real network in your tests is not recommended, and can lead to flaky tests. This why netmock will disable this option for you after each test, and if you want to allow real network requests for all tests, make sure to call `allowRealNetwork(true)` inside `beforeEach()`.
