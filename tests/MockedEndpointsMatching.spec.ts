@@ -7,6 +7,10 @@ describe('Mocked Endpoints Match Tests', () => {
     netmock = require('../src').netmock;
   });
 
+  it('should ', () => {
+
+  });
+
   it('should match an explicit url', async () => {
     netmock.get('https://wix.com/exact/route/to/match', () => 'Mocked Text');
 
