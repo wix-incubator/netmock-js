@@ -78,4 +78,20 @@ describe('Mocked endpoints handler params', () => {
       expect(body).toEqual({ firstName: 'Scarlet', lastName: 'Johansson' });
     });
   });
+
+  it('should have convenient request headers', async () => {
+    netmock.get('https://wix.com', (req) => {
+      expect(req.headers).toEqual({ blamos: 'true' });
+    });
+    const headers = new Headers();
+    headers.set('blamos', 'true');
+    await fetch('https://wix.com', { headers });
+  });
+
+  it('should contain the raw request object', async () => {
+    netmock.get('https://wix.com', (req) => {
+      expect(req.rawRequest instanceof Request).toEqual(true);
+    });
+    await fetch('https://wix.com');
+  });
 });

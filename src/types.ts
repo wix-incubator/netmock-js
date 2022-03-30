@@ -1,7 +1,9 @@
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
-export interface NetmockRequest extends Request {
-  query: { [key: string]: string },
-  params: { [key: string]: string },
+export interface NetmockRequest {
+  rawRequest: Request;
+  headers: { [key: string]: string };
+  query: { [key: string]: string };
+  params: { [key: string]: string };
 }
 export interface NetmockResponseFields<T = any> {
   body: T | undefined

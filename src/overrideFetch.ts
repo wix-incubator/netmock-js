@@ -25,10 +25,13 @@ export function overrideFetch() {
         }
         throw Error(message);
       }
-      const request = new global.Request(input, init);
+      const rawRequest = new global.Request(input, init);
+      const headers = Object.fromEntries(rawRequest.headers.entries());
       const query = Object.fromEntries(new URL(url).searchParams);
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
-      let res = mockedEndpoint.handler({ ...request, query, params });
+      let res = mockedEndpoint.handler({
+        rawRequest, query, params, headers,
+      });
       if (!(res instanceof NetmockResponse)) {
         res = new NetmockResponse(res);
       }

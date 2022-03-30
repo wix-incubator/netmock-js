@@ -4,7 +4,7 @@ import { Method, MockedUrl } from './types';
 export function netprob(method: Method, url: MockedUrl) {
   const metadata = getMockedEndpointMetadata(method, url);
   if (!metadata) {
-    throw new Error(`Cannot prob unmocked endpoint: ${method} ${url}`);
+    throw new Error(`Cannot probe unmocked endpoint: ${method} ${url}`);
   }
   return {
     callCount: () => metadata.calls.length,

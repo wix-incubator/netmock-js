@@ -38,6 +38,6 @@ describe('Netprob Tests', () => {
   });
 
   it('should throw error if trying to get incorrect address', async () => {
-    expect(() => netprob('get', 'https://www.unmockedUrl.com')).toThrowError('Cannot prob unmocked endpoint: get https://www.unmockedUrl.com');
+    expect(() => netprob('get', 'https://www.unmockedUrl.com')).toThrowError('Cannot probe unmocked endpoint: get https://www.unmockedUrl.com');
   });
 });

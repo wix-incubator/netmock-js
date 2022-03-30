@@ -59,7 +59,7 @@ Here is the NetmockResponse object API:
 *  set: (set: (value: Partial<NetmockResponse>)); //a convenient function for setting multiple response fields at once
 
 #### **netprob(method, url) => ProbObject**
-A function that allows you to prob the mocked endpoints and do some assertions on them.
+A function that allows you to probe the mocked endpoints and do some assertions on them.
 
 params:
 * *method: string* - The http method of the mocked endpoint (post, get, put, patch, delete);
