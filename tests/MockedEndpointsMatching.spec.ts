@@ -4,7 +4,7 @@ describe('Mocked Endpoints Match Tests', () => {
   let netmock: typeof import('../src').netmock;
 
   beforeEach(() => {
-    netmock = require('../src').netmock;
+    netmock = require('netmock-js').netmock;
   });
 
   it('should print a hint on suspected wrong mocked method', async () => {

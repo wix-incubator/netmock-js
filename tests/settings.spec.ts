@@ -1,11 +1,11 @@
 describe('Settings', () => {
   it('should throw an exception if network is disabled and an unmocked request is fetched', async () => {
-    require('../src').allowRealNetwork(false);
+    require('netmock-js').allowRealNetwork(false);
     await expect(fetchData()).rejects.toThrow('Endpoint not mocked');
   });
 
   it('should make a real network call if network is enabled and an unmocked request is fetched', async () => {
-    require('../src').allowRealNetwork(true);
+    require('netmock-js').allowRealNetwork(true);
     await fetchData();
     await expect((global as any).fetchSpy).toHaveBeenCalledWith('https://wix.com', undefined);
   });

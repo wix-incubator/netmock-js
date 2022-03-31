@@ -3,8 +3,8 @@ describe('Netlog Tests', () => {
   let netmock: typeof import('../src').netmock;
 
   beforeEach(() => {
-    netlog = require('../src').netlog;
-    netmock = require('../src').netmock;
+    netlog = require('netmock-js').netlog;
+    netmock = require('netmock-js').netmock;
   });
 
   it('should allow logging call count', async () => {

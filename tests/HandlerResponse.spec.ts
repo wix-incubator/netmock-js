@@ -1,10 +1,9 @@
-import { resp } from '../src/NetmockResponse';
-
 describe('Response', () => {
   let netmock: typeof import('../src').netmock;
-
+  let reply: typeof import('../src').reply;
   beforeEach(() => {
-    netmock = require('../src').netmock;
+    netmock = require('netmock-js').netmock;
+    reply = require('netmock-js').reply;
   });
 
   describe('Response Body', () => {
@@ -37,18 +36,18 @@ describe('Response', () => {
 
   describe('Other Params', () => {
     it('should allow setting a delay', async () => {
-      netmock.get('https://wix.com', () => resp('Mocked Text').delay(100));
+      netmock.get('https://wix.com', () => reply('Mocked Text').delay(100));
       let value;
       fetch('https://wix.com').then(async (res) => {
         value = await res.text();
       });
       await new Promise((r) => { setTimeout(r, 50); });
       expect(value).toEqual(undefined);
-      await new Promise((r) => { setTimeout(r, 50); });
+      await new Promise((r) => { setTimeout(r, 60); });
       expect(value).toEqual('Mocked Text');
     });
     it('should allow setting all of the response params at once', async () => {
-      netmock.get('https://wix.com', () => resp('Mocked Text').set({
+      netmock.get('https://wix.com', () => reply('Mocked Text').set({
         status: 400,
         headers: { accept: 'text/html' },
         body: 'niryo',
@@ -70,13 +69,13 @@ describe('Response', () => {
     });
 
     it('should mock response status code with handler', async () => {
-      netmock.get('https://wix.com', () => resp('Mocked Text').statusCode(400));
+      netmock.get('https://wix.com', () => reply('Mocked Text').statusCode(400));
       const res = await fetch('https://wix.com');
       expect(res.status).toEqual(400);
     });
 
     it('should mock response headers', async () => {
-      netmock.get('https://wix.com', () => resp('Mocked Text').headers({ accept: 'text/html' }));
+      netmock.get('https://wix.com', () => reply('Mocked Text').headers({ accept: 'text/html' }));
 
       const res = await fetch('https://wix.com');
       const headers = Object.fromEntries(res.headers);

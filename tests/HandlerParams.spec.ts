@@ -2,7 +2,7 @@ describe('Mocked endpoints handler params', () => {
   let netmock: typeof import('../src').netmock;
 
   beforeEach(() => {
-    netmock = require('../src').netmock;
+    netmock = require('netmock-js').netmock;
   });
 
   describe('URL Params', () => {
