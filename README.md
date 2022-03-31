@@ -58,8 +58,8 @@ Here is the NetmockResponse object API:
 *  delay(delayInMs: number); // simulate response delay
 *  set: (set: (value: Partial<NetmockResponse>)); //a convenient function for setting multiple response fields at once
 
-#### **netprob(method, url) => ProbObject**
-A function that allows you to probe the mocked endpoints and do some assertions on them.
+#### **netlog(method, url) => ProbObject**
+A function that allows you to access the logs of a certain endpoint and do some assertions on them.
 
 params:
 * *method: string* - The http method of the mocked endpoint (post, get, put, patch, delete);
@@ -71,14 +71,14 @@ It returns and object with the following methods:
 
 usage:
 ```javascript
-    import {netprob} from 'netmock-js';
+    import {netlog} from 'netmock-js';
     const mockedEndpointUrl = 'https://www.wix.com/:id/:user';
     netmock.post(mockedEndpointUrl, () => ({}));
     await fetch('https://www.wix.com/123/blamos', { method: 'post' }); //trigger call 1
     await fetch('https://www.wix.com/456/blamos2?value=true', { method: 'post' }); //trigger call 2
-    expect(netprob('post', mockedEndpointUrl).callCount()).toEqual(2);
-    expect(netprob('post', mockedEndpointUrl).getRequest(0).params).toEqual({ id: '123', user: 'blamos' });
-    expect(netprob('post', mockedEndpointUrl).getRequest(1).query).toEqual({ value: 'true'});
+    expect(netlog('post', mockedEndpointUrl).callCount()).toEqual(2);
+    expect(netlog('post', mockedEndpointUrl).getRequest(0).params).toEqual({ id: '123', user: 'blamos' });
+    expect(netlog('post', mockedEndpointUrl).getRequest(1).query).toEqual({ value: 'true'});
 ```
 
 #### **allowRealNetwork(value: boolean)**
