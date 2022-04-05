@@ -26,7 +26,7 @@ export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   return mockedEndpoints[method][key]?.metadata;
 }
 
-export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler) {
+export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler, stackTrace: string) {
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
   const metadata = getEmptyMetadata();
@@ -35,6 +35,7 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
     handler: getHandlerMetadataCollectorWrapper(handler, metadata),
     urlRegex,
     metadata,
+    stackTrace,
   };
 }
 

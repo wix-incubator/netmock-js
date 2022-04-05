@@ -38,3 +38,15 @@ export function convertUrlToRegex(str: string) {
   urlRegex = `^${urlRegex}/?$`;
   return new RegExp(urlRegex);
 }
+
+export function captureStack(fn: Function) {
+  const obj = { stack: '' };
+  Error.captureStackTrace(obj, fn);
+  return obj.stack;
+}
+
+export function getErrorWithCorrectStack(errorMessage: string, stack: string) {
+  const error = new Error(errorMessage);
+  error.stack = `${errorMessage}\n${stack}`;
+  return error;
+}

@@ -1,6 +1,8 @@
 import { findMockedEndpoint, findMockedMethod } from './mockedEndpointsService';
-import { getRequestMethod, getUrl } from './utils';
-import { clearIsCurrentlyUsingNetmockReply, getIsCurrentlyUsingNetmockReply, NetmockResponse } from './NetmockResponse';
+import {
+  captureStack, getRequestMethod, getUrl, getErrorWithCorrectStack,
+} from './utils';
+import { clearCurrentNetmockReplyTrace, getCurrentNetmockReplyTrace, NetmockResponse } from './NetmockResponse';
 import { isRealNetworkAllowed } from './settings';
 
 let originalFetch: any;
@@ -23,22 +25,23 @@ export function overrideFetch() {
         if (mockedMethods.length > 0) {
           message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
         }
-        throw Error(message);
+
+        throw getErrorWithCorrectStack(message, captureStack(global.fetch));
       }
       const rawRequest = new global.Request(input, init);
       const headers = Object.fromEntries(rawRequest.headers.entries());
       const query = Object.fromEntries(new URL(url).searchParams);
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
-      clearIsCurrentlyUsingNetmockReply();
+      clearCurrentNetmockReplyTrace();
       let res = mockedEndpoint.handler({
         rawRequest, query, params, headers,
       });
 
-      const isUsedNetmockReply = getIsCurrentlyUsingNetmockReply();
-      clearIsCurrentlyUsingNetmockReply();
+      const replyTrace = getCurrentNetmockReplyTrace();
+      clearCurrentNetmockReplyTrace();
       if (!(res instanceof NetmockResponse)) {
-        if (isUsedNetmockReply) {
-          throw new Error('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
+        if (replyTrace) {
+          throw getErrorWithCorrectStack('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?', replyTrace);
         }
         res = new NetmockResponse(res);
       }

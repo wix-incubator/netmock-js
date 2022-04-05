@@ -33,6 +33,7 @@ export interface MockedEndpoint<T = any> {
   handler: MockedEndpointHandler<T>,
   metadata: MockedEndpointMetaData,
   urlRegex: RegExp,
+  stackTrace: string;
 }
 
 export type MockedUrl = string | RegExp;

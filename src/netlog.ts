@@ -1,10 +1,11 @@
 import { getMockedEndpointMetadata } from './mockedEndpointsService';
 import { Method, MockedUrl } from './types';
+import { captureStack, getErrorWithCorrectStack } from './utils';
 
 export function netlog(method: Method, url: MockedUrl) {
   const metadata = getMockedEndpointMetadata(method, url);
   if (!metadata) {
-    throw new Error(`Cannot log unmocked endpoint: ${method} ${url}`);
+    throw getErrorWithCorrectStack(`Cannot log unmocked endpoint: ${method} ${url}`, captureStack(netlog));
   }
   return {
     callCount: () => metadata.calls.length,
