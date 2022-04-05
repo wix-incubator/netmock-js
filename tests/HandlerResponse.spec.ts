@@ -6,6 +6,13 @@ describe('Response', () => {
     reply = require('netmock-js').reply;
   });
 
+  it('should throw an error if someone forgot to return the reply object', async () => {
+    netmock.get('https://wix.com', () => {
+      reply('Mocked Text');
+    });
+    await expect(fetchData()).rejects.toThrow('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
+  });
+
   describe('Response Body', () => {
     it('should mock a string response body', async () => {
       netmock.get('https://wix.com', () => 'Mocked Text');
@@ -83,3 +90,7 @@ describe('Response', () => {
     });
   });
 });
+
+async function fetchData() {
+  return fetch('https://wix.com');
+}

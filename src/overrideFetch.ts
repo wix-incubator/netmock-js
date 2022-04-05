@@ -1,6 +1,6 @@
 import { findMockedEndpoint, findMockedMethod } from './mockedEndpointsService';
 import { getRequestMethod, getUrl } from './utils';
-import { NetmockResponse } from './NetmockResponse';
+import { clearIsCurrentlyUsingNetmockReply, getIsCurrentlyUsingNetmockReply, NetmockResponse } from './NetmockResponse';
 import { isRealNetworkAllowed } from './settings';
 
 let originalFetch: any;
@@ -29,10 +29,17 @@ export function overrideFetch() {
       const headers = Object.fromEntries(rawRequest.headers.entries());
       const query = Object.fromEntries(new URL(url).searchParams);
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
+      clearIsCurrentlyUsingNetmockReply();
       let res = mockedEndpoint.handler({
         rawRequest, query, params, headers,
       });
+
+      const isUsedNetmockReply = getIsCurrentlyUsingNetmockReply();
+      clearIsCurrentlyUsingNetmockReply();
       if (!(res instanceof NetmockResponse)) {
+        if (isUsedNetmockReply) {
+          throw new Error('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
+        }
         res = new NetmockResponse(res);
       }
 
