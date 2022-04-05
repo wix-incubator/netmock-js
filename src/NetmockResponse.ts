@@ -75,12 +75,22 @@ export class NetmockResponse<T> implements NetmockResponseType<T> {
   }
 }
 
+let currentlyUsingNetmockReply = false;
+
 /**
  * Create Netmock response. You can use it to return a response from your mocked endpoint's handler, in
  * cases when you need to tweak the response params (headers, statusCode etc`...)
  * @param body the response body
  * @return {Response} This response instance for chaining purposes.
  */
-export function resp<T>(body?: T) {
+export function reply<T>(body?: T) {
+  currentlyUsingNetmockReply = true;
   return new NetmockResponse<T>(body);
+}
+
+export function getIsCurrentlyUsingNetmockReply() {
+  return currentlyUsingNetmockReply;
+}
+export function clearIsCurrentlyUsingNetmockReply() {
+  currentlyUsingNetmockReply = false;
 }
