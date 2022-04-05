@@ -1,6 +1,7 @@
 import type {
   NetmockResponseFields, NetmockResponseParams, Headers, NetmockResponseType,
 } from './types';
+import { captureStack } from './utils';
 
 /**
  * The netmock response class provides an api to get, set and parse
@@ -75,7 +76,7 @@ export class NetmockResponse<T> implements NetmockResponseType<T> {
   }
 }
 
-let currentlyUsingNetmockReply = false;
+let currentNetmockReplyTrace: string | undefined;
 
 /**
  * Create Netmock response. You can use it to return a response from your mocked endpoint's handler, in
@@ -84,13 +85,13 @@ let currentlyUsingNetmockReply = false;
  * @return {Response} This response instance for chaining purposes.
  */
 export function reply<T>(body?: T) {
-  currentlyUsingNetmockReply = true;
+  currentNetmockReplyTrace = captureStack(reply);
   return new NetmockResponse<T>(body);
 }
 
-export function getIsCurrentlyUsingNetmockReply() {
-  return currentlyUsingNetmockReply;
+export function getCurrentNetmockReplyTrace() {
+  return currentNetmockReplyTrace;
 }
-export function clearIsCurrentlyUsingNetmockReply() {
-  currentlyUsingNetmockReply = false;
+export function clearCurrentNetmockReplyTrace() {
+  currentNetmockReplyTrace = undefined;
 }
