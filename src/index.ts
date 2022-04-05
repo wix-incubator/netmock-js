@@ -1,6 +1,6 @@
 import { registerMockedEndpoint } from './mockedEndpointsService';
 import { MockedEndpointHandler, Netmock } from './types';
-import {captureStack} from './utils';
+import { captureStack } from './utils';
 
 export { netlog } from './netlog';
 export { allowRealNetwork } from './settings';
