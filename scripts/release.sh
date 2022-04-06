@@ -7,7 +7,7 @@ git config --global user.email $GIT_EMAIL
 git config --global user.name $GIT_USER
 git remote add deploy "https://$GIT_USER:$GIT_TOKEN@$remoteUrl"
 git checkout $BUILDKITE_BRANCH
-echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
 
 normalized_branch=$(echo $BUILDKITE_BRANCH | sed 's/[^a-zA-Z0-9-]/./g')
 
