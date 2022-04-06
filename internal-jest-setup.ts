@@ -6,4 +6,8 @@ jest.mock('node-fetch', () => {
   Object.assign(result, realNodeFetch);
   return result;
 });
+
+beforeEach(() => {
+  (global as any).fetchSpy.mockClear();
+});
 require('./src/jest-setup');
