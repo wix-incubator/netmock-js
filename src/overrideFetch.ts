@@ -17,7 +17,7 @@ export function overrideFetch() {
       const method = getRequestMethod(input, init);
       const mockedEndpoint = findMockedEndpoint(input, method);
       if (!mockedEndpoint) {
-        if (isRealNetworkAllowed()) {
+        if (isRealNetworkAllowed(url)) {
           return originalFetch(input, init);
         }
         let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;

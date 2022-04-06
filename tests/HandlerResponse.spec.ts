@@ -10,7 +10,7 @@ describe('Response', () => {
     netmock.get('https://wix.com', () => {
       reply('Mocked Text');
     });
-    await expect(fetchData()).rejects.toThrow('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
+    await expect(() => fetch('https://wix.com')).rejects.toThrow('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
   });
 
   describe('Response Body', () => {
@@ -90,7 +90,3 @@ describe('Response', () => {
     });
   });
 });
-
-async function fetchData() {
-  return fetch('https://wix.com');
-}
