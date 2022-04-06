@@ -13,6 +13,13 @@ describe('Response', () => {
     await expect(() => fetch('https://wix.com')).rejects.toThrow('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
   });
 
+  it('should support async handler', async () => {
+    netmock.get('https://wix.com', async () => reply('Mocked Text'));
+    netmock.get('https://blamos.com', async () => 'another mocked text');
+
+    expect(await (await fetch('https://wix.com')).text()).toBe('Mocked Text');
+    expect(await (await fetch('https://blamos.com')).text()).toBe('another mocked text');
+  });
   describe('Response Body', () => {
     it('should mock a string response body', async () => {
       netmock.get('https://wix.com', () => 'Mocked Text');

@@ -11,7 +11,7 @@ export function overrideFetch() {
   if (!originalFetch) {
     originalFetch = global.fetch;
   }
-  global.fetch = (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+  global.fetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     try {
       const url = getUrl(input);
       const method = getRequestMethod(input, init);
@@ -33,7 +33,7 @@ export function overrideFetch() {
       const query = Object.fromEntries(new URL(url).searchParams);
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
       clearCurrentNetmockReplyTrace();
-      let res = mockedEndpoint.handler({
+      let res = await mockedEndpoint.handler({
         rawRequest, query, params, headers,
       });
 
@@ -53,7 +53,7 @@ export function overrideFetch() {
         setTimeout(() => resolve(response), responseParams.delay);
       });
 
-      return responsePromise;
+      return await responsePromise;
     } catch (e) {
       return Promise.reject(e);
     }
