@@ -17,7 +17,7 @@
     "url": "git+https://github.com/wix-incubator/netmock.git"
   },
   "author": "Tomer Groisman",
-  "license": "ISC",
+  "license": "ISCs",
   "bugs": {
     "url": "https://github.com/wix-incubator/netmock/issues"
   },
