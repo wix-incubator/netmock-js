@@ -81,7 +81,7 @@ usage:
     expect(netlog('post', mockedEndpointUrl).getRequest(1).query).toEqual({ value: 'true'});
 ```
 
-#### **allowRealNetwork(value: boolean)**
+#### **allowRealNetwork(value: boolean | RegExp)**
 Netmock will block any real network by default. In order to allow real network requests (to unmocked endpoints), you can do the following:
 ```javascript
 import {allowRealNetwork} from 'netmock-js;
@@ -89,5 +89,5 @@ beforeEach(() => {
   allowRealNetwork(true);
 });
 ```
-
+You can pass a regex instead of boolean in order to allow real network only for specific urls (those who match the regex).
 Allowing real network in your tests is not recommended, and can lead to flaky tests. This why netmock will disable this option for you after each test, and if you want to allow real network requests for all tests, make sure to call `allowRealNetwork(true)` inside `beforeEach()`.
