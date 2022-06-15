@@ -46,6 +46,6 @@ describe('Netlog Tests', () => {
     netmock.post('https://www.wix.com/:id/', () => ({}));
     await fetch('https://www.wix.com/123', { method: 'post', body: JSON.stringify(theBody) });
 
-    expect(netlog('post', 'https://www.wix.com/:id').getRequestBody(0)).toEqual(theBody);
+    expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(theBody);
   });
 });

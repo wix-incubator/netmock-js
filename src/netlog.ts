@@ -11,9 +11,5 @@ export function netlog(method: Method, url: MockedUrl) {
   return {
     callCount: () => metadata.calls.length,
     getRequest,
-    getRequestBody: (index: number) => {
-      const body = getRequest(index).rawRequest.body;
-      return body ? JSON.parse((body!).toString()) : undefined;
-    },
   };
 }

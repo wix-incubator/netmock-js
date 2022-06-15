@@ -4,6 +4,7 @@ export interface NetmockRequest {
   headers: { [key: string]: string };
   query: { [key: string]: string };
   params: { [key: string]: string };
+  body: string;
 }
 export interface NetmockResponseFields<T = any> {
   body: T | undefined
