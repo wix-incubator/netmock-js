@@ -32,9 +32,10 @@ export function overrideFetch() {
       const headers = Object.fromEntries(rawRequest.headers.entries());
       const query = Object.fromEntries(new URL(url).searchParams);
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
+      const body = rawRequest.body ? JSON.parse((rawRequest.body!).toString()) : undefined;
       clearCurrentNetmockReplyTrace();
       let res = await mockedEndpoint.handler({
-        rawRequest, query, params, headers,
+        rawRequest, query, params, headers, body,
       });
 
       const replyTrace = getCurrentNetmockReplyTrace();
