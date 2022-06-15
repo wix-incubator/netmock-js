@@ -40,4 +40,12 @@ describe('Netlog Tests', () => {
   it('should throw error if trying to get incorrect address', async () => {
     expect(() => netlog('get', 'https://www.unmockedUrl.com')).toThrowError('Cannot log unmocked endpoint: get https://www.unmockedUrl.com');
   });
+
+  it('should allow logging request body', async () => {
+    const theBody = { foo: 'fighter' };
+    netmock.post('https://www.wix.com/:id/', () => ({}));
+    await fetch('https://www.wix.com/123', { method: 'post', body: JSON.stringify(theBody) });
+
+    expect(netlog('post', 'https://www.wix.com/:id').getRequestBody(0)).toEqual(theBody);
+  });
 });
