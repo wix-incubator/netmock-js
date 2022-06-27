@@ -43,9 +43,18 @@ describe('Netlog Tests', () => {
 
   it('should allow logging request body', async () => {
     const theBody = { foo: 'fighter' };
+    const body = JSON.stringify(theBody);
     netmock.post('https://www.wix.com/:id/', () => ({}));
-    await fetch('https://www.wix.com/123', { method: 'post', body: JSON.stringify(theBody) });
+    await fetch('https://www.wix.com/123', { method: 'post', body });
 
-    expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(theBody);
+    expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(body);
+  });
+
+  it('should allow logging request with non json body', async () => {
+    const body = 'foo fighter';
+    netmock.post('https://www.wix.com/:id/', () => ({}));
+    await fetch('https://www.wix.com/123', { method: 'post', body });
+
+    expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(body);
   });
 });
