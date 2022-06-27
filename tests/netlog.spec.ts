@@ -50,7 +50,7 @@ describe('Netlog Tests', () => {
     expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(body);
   });
 
-  it('should allow logging request non json body', async () => {
+  it('should allow logging request with non json body', async () => {
     const body = 'foo fighter';
     netmock.post('https://www.wix.com/:id/', () => ({}));
     await fetch('https://www.wix.com/123', { method: 'post', body });
