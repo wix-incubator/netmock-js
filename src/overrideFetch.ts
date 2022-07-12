@@ -34,12 +34,13 @@ export function overrideFetch() {
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
       const body = rawRequest.body ? rawRequest.body!.toString() : undefined;
       clearCurrentNetmockReplyTrace();
-      let res = await mockedEndpoint.handler({
+      const handlerResponsePromise = mockedEndpoint.handler({
         rawRequest, query, params, headers, body,
       });
-
       const replyTrace = getCurrentNetmockReplyTrace();
       clearCurrentNetmockReplyTrace();
+      let res = await handlerResponsePromise;
+
       if (!(res instanceof NetmockResponse)) {
         if (replyTrace) {
           throw getErrorWithCorrectStack('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?', replyTrace);

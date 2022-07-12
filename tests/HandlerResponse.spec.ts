@@ -6,11 +6,20 @@ describe('Response', () => {
     reply = require('netmock-js').reply;
   });
 
-  it('should throw an error if someone forgot to return the reply object', async () => {
-    netmock.get('https://wix.com', () => {
-      reply('Mocked Text');
+  describe('Detect unreturned replies', () => {
+    it('should throw an error if someone forgot to return the reply object', async () => {
+      netmock.get('https://wix.com', () => {
+        reply('Mocked Text');
+      });
+      await expect(() => fetch('https://wix.com')).rejects.toThrow('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
     });
-    await expect(() => fetch('https://wix.com')).rejects.toThrow('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?');
+
+    it('should work correctly when there are multiple requests', async () => {
+      netmock.get('https://wix.com', () => 'Mocked Text');
+      netmock.get('https://wix2.com', () => reply('Mocked Text'));
+      fetch('https://wix.com');
+      await fetch('https://wix2.com');
+    });
   });
 
   it('should support async handler', async () => {
