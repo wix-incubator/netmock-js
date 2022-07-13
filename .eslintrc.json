@@ -21,6 +21,7 @@
         "semi": ["error", "always"],
         "comma-dangle": ["error", "always-multiline"],
         "global-require" : "off",
+        "no-promise-executor-return" : "off",
         "import/prefer-default-export": "off",
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": ["error"],
