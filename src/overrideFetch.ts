@@ -42,7 +42,7 @@ export function overrideFetch() {
       clearCurrentNetmockReplyTrace();
       if (!(res instanceof NetmockResponse)) {
         if (replyTrace) {
-          throw getErrorWithCorrectStack('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?', replyTrace);
+          // throw getErrorWithCorrectStack('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?', replyTrace);
         }
         res = new NetmockResponse(res);
       }
