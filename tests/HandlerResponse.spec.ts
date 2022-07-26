@@ -7,7 +7,7 @@ describe('Response', () => {
   });
 
   describe.skip('Detect unreturned replies', () => {
-    it.only('should throw an error if someone forgot to return the reply object', async () => {
+    it('should throw an error if someone forgot to return the reply object', async () => {
       netmock.get('https://wix.com', () => {
         reply('Mocked Text');
       });
