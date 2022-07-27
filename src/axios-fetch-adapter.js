@@ -47,7 +47,7 @@ async function getResponse(request, config) {
   try {
     stageOne = await fetch(request);
   } catch (e) {
-    return new axios.AxiosError(e.message, axios.AxiosError.ERR_NETWORK, config, request, response);
+    return new axios.AxiosError(e.message, axios.AxiosError.ERR_NETWORK, config, request);
   }
 
   const response = {
