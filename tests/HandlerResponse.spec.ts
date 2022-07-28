@@ -3,7 +3,6 @@ import axios from 'axios';
 describe('Response', () => {
   let netmock: typeof import('../src').netmock;
   let reply: typeof import('../src').reply;
-  // const axios = require('axios') as typeof import('axios').default;
 
   beforeEach(() => {
     netmock = require('netmock-js').netmock;
