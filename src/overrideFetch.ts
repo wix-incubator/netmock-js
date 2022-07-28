@@ -13,7 +13,7 @@ export function overrideFetch() {
   }
   global.fetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     try {
-      const url = getUrl(input);
+      const url = decodeURI(getUrl(input));
       const method = getRequestMethod(input, init);
       const mockedEndpoint = findMockedEndpoint(input, method);
       if (!mockedEndpoint) {
