@@ -10,7 +10,7 @@ A javascript network mocker for tests
   // mock some endpoint:
   netmock.post('https://wix.com', () => 'Mocked Text');
   
-  // now calling fetch on this endpoint will return the mocked body:
+  // now calling fetch or axios on this endpoint will return the mocked body:
   const res = await fetch('https://wix.com', { method: 'POST' });
   const body = await res.text();
   expect(body).toBe('Mocked Text');
