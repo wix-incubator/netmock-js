@@ -30,7 +30,7 @@ export function overrideFetch() {
       }
       const rawRequest = new global.Request(input, init);
       const headers = Object.fromEntries(rawRequest.headers.entries());
-      const query = Object.fromEntries(new URL(url).searchParams);
+      const query = Object.fromEntries(new URL(url).searchParams.entries());
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
       const body = rawRequest.body ? rawRequest.body!.toString() : undefined;
       clearCurrentNetmockReplyTrace();
