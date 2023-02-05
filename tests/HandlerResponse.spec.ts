@@ -78,6 +78,16 @@ describe('Response', () => {
       expect(axiosValue).toEqual('Mocked Text');
     });
 
+    it('should return different responses based on call count', async () => {
+      netmock.get('https://wix.com', (req, count) => reply(`Count ${count}`));
+
+      const fetchRes1 = await fetch('https://wix.com');
+      expect(await fetchRes1.text()).toEqual('Count 0');
+
+      const fetchRes2 = await fetch('https://wix.com');
+      expect(await fetchRes2.text()).toEqual('Count 1');
+    });
+
     it('should allow setting all of the response params at once', async () => {
       netmock.get('https://wix.com', () => reply('Mocked Text').set({
         status: 207,
