@@ -79,7 +79,7 @@ describe('Response', () => {
     });
 
     it('should return different responses based on call count', async () => {
-      netmock.get('https://wix.com', (req, count) => reply(`Count ${count}`));
+      netmock.get('https://wix.com', (req, data) => reply(`Count ${data.callCount}`));
 
       const fetchRes1 = await fetch('https://wix.com');
       expect(await fetchRes1.text()).toEqual('Count 0');
