@@ -1,4 +1,4 @@
-import { findMockedEndpoint, findMockedMethod } from './mockedEndpointsService';
+import { findMockedEndpoint, findMockedMethod, getMockedEndpointMetadata } from './mockedEndpointsService';
 import {
   captureStack, getRequestMethod, getUrl, getErrorWithCorrectStack,
 } from './utils';
@@ -34,9 +34,10 @@ export function overrideFetch() {
       const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
       const body = rawRequest.body ? rawRequest.body!.toString() : undefined;
       clearCurrentNetmockReplyTrace();
+      const metadata = getMockedEndpointMetadata(method, url);
       let res = await mockedEndpoint.handler({
         rawRequest, query, params, headers, body,
-      });
+      }, { callCount: metadata?.calls.length });
 
       const replyTrace = getCurrentNetmockReplyTrace();
       clearCurrentNetmockReplyTrace();

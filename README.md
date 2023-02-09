@@ -34,6 +34,7 @@ params:
       netmock.get('https://wix.com/get/some/value', () => {}) // plain url
       netmock.get(/.*wix/, () => {}) // regex
       netmock.post('https://wix.com/bookings/:user/:id', () => {}) // route
+      netmock.get('https://wix.com/get/some/value', (req, data) => ({responseNumber: data.callCount})) // different responses
       ```
     In case of mock collisions, netmock will prefer plain url matching over regex matching over rout matching
  * *handler*: ({query, params}) => responseBody
