@@ -78,6 +78,14 @@ describe('Mocked endpoints handler params', () => {
       expect(await (await fetch('https://wix.com?firstName=Scarlet&lastName=Johansson')).json()).toEqual({ firstName: 'Scarlet', lastName: 'Johansson' });
       expect((await axios.get('https://wix.com?firstName=Scarlet&lastName=Johansson')).data).toEqual({ firstName: 'Scarlet', lastName: 'Johansson' });
     });
+
+    it('should throw error if trying to mock endpoint with query params', async () => {
+      expect(() => {
+        netmock.get('https://wix.com?blamos=true', () => {});
+      }).toThrowError(
+        'Cannot mock endpoint with query params. Please remove the query params from the url. Endpoint: https://wix.com?blamos=true',
+      );
+    });
   });
 
   it('should have convenient request headers', async () => {
