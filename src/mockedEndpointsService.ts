@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-cycle
+import { netlogApi } from './netlog';
 import type {
   MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
 } from './types';
@@ -37,6 +39,7 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
     metadata,
     stackTrace,
   };
+  return netlogApi(metadata);
 }
 
 export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEndpoint | undefined {
