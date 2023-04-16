@@ -39,11 +39,15 @@ export interface MockedEndpoint<T = any> {
 
 export type MockedUrl = string | RegExp;
 export interface Netmock {
-  get: (url: MockedUrl, handler: MockedEndpointHandler) => void;
-  post: (url: MockedUrl, handler: MockedEndpointHandler) => void;
-  put: (url: MockedUrl, handler: MockedEndpointHandler) => void;
-  patch: (url: MockedUrl, handler: MockedEndpointHandler) => void;
-  delete: (url: MockedUrl, handler: MockedEndpointHandler) => void;
+  get: (url: MockedUrl, handler: MockedEndpointHandler) => NetlogAPI;
+  post: (url: MockedUrl, handler: MockedEndpointHandler) => NetlogAPI;
+  put: (url: MockedUrl, handler: MockedEndpointHandler) => NetlogAPI;
+  patch: (url: MockedUrl, handler: MockedEndpointHandler) => NetlogAPI;
+  delete: (url: MockedUrl, handler: MockedEndpointHandler) => NetlogAPI;
 }
+export type NetlogAPI = {
+  callCount: () => number;
+  getRequest: (index: number) => NetmockRequest;
+};
 
 export type Headers = { [key: string]: string };

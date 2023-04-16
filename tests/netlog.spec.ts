@@ -65,4 +65,12 @@ describe('Netlog Tests', () => {
     expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(body);
     expect(netlog('post', 'https://www.wix.com/:id').getRequest(1).body).toEqual(body);
   });
+
+  it('should return the endpoint log when mocking some endpoint', async () => {
+    const log = netmock.get('https://www.wix.com/:id/', () => ({}));
+    expect(log).toBeDefined();
+    expect(log.callCount()).toEqual(0);
+    await fetch('https://www.wix.com/123');
+    expect(log.callCount()).toEqual(1);
+  });
 });
