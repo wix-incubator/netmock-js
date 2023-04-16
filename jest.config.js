@@ -9,8 +9,11 @@ module.exports = {
   },
   transformIgnorePatterns: ['/node_modules/(?!(@vespaiach/axios-fetch-adapter)/)'],
   testEnvironment: 'node',
+  restoreMocks: true,
+  resetMocks: true,
+  resetModules: true,
   moduleNameMapper: {
     'netmock-js': '<rootDir>/src/index',
   },
-  setupFilesAfterEnv: ['./internal-jest-setup.ts'],
+  setupFilesAfterEnv: ['./src/jest-setup.ts'],
 };

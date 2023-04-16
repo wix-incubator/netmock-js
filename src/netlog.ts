@@ -5,7 +5,7 @@ import type {
 } from './types';
 import { captureStack, getErrorWithCorrectStack } from './utils';
 
-export function netlog(method: Method, url: MockedUrl) {
+export function netlog(method: Method, url: MockedUrl): NetlogAPI {
   const metadata = getMockedEndpointMetadata(method, url);
   if (!metadata) {
     throw getErrorWithCorrectStack(`Cannot log unmocked endpoint: ${method} ${url}`, captureStack(netlog));
