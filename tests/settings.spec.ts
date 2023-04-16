@@ -24,16 +24,8 @@ describe('Settings', () => {
       await fetch('https://this-site-does-not-exist-niryo.com');
     }).rejects.toThrowError('ENOTFOUND');
 
-    await expect(async () => {
-      await fetch('https://wix.com');
-    }).rejects.toThrowError('Endpoint not mocked: GET https://wix.com');
-
-    await expect(async () => {
-      await axios.get('https://this-site-does-not-exist-niryo.com');
-    }).rejects.toThrowError('ENOTFOUND');
-
-    await expect(async () => {
-      await axios.get('https://wix.com');
-    }).rejects.toThrowError('Endpoint not mocked: GET https://wix.com');
+    await expect(fetch('https://wix.com')).rejects.toThrowError('Endpoint not mocked: GET https://wix.com');
+    await expect(axios.get('https://this-site-does-not-exist-niryo.com')).rejects.toThrowError('ENOTFOUND');
+    await expect(axios.get('https://wix.com')).rejects.toThrowError('Endpoint not mocked: GET https://wix.com');
   });
 });
