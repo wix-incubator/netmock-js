@@ -24,8 +24,9 @@ Add this to your jest config:
 }
 ```
 ### API
-#### **netmock[method](url, handler)**
+#### **netmock[method](url, handler): Netlog**
 The netmock object allows you to mock the following http method types: `get/post/put/patch/delete`.
+The returned object can be used for doing some assertions about the mocked endpoint (Read the section about `netlog`)
 
 params:
  * *url*: string | route | RegExp
@@ -35,6 +36,10 @@ params:
       netmock.get(/.*wix/, () => {}) // regex
       netmock.post('https://wix.com/bookings/:user/:id', () => {}) // route
       netmock.get('https://wix.com/get/some/value', (req, data) => ({responseNumber: data.callCount})) // different responses
+      
+      //using the returned endpoint log:
+      const log = netmock.get('https://wix.com/get/some/value', () => {}) // plain url
+      expect(log.callCount()).toEqual(0);
       ```
     In case of mock collisions, netmock will prefer plain url matching over regex matching over rout matching
  * *handler*: ({query, params}) => responseBody
