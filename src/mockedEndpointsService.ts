@@ -11,28 +11,22 @@ function getCleanState() {
   };
 }
 
- type MockedEndpointsDictionary = {
-   [method in Method]: {
-     [key: string]: MockedEndpoint
-   }
- };
-
-let mockedEndpoints: MockedEndpointsDictionary = getCleanState();
+global.netmockMockedEndpoints = getCleanState();
 
 export function reset() {
-  mockedEndpoints = getCleanState();
+  global.netmockMockedEndpoints = getCleanState();
 }
 
 export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   const key = getMockedEndpointKey(url);
-  return mockedEndpoints[method][key]?.metadata;
+  return global.netmockMockedEndpoints[method][key]?.metadata;
 }
 
 export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler, stackTrace: string) {
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
   const metadata = getEmptyMetadata();
-  mockedEndpoints[method][key] = {
+  global.netmockMockedEndpoints[method][key] = {
     key,
     handler: getHandlerMetadataCollectorWrapper(handler, metadata),
     urlRegex,
@@ -44,9 +38,9 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
 
 export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEndpoint | undefined {
   const key = getMockedEndpointKey(input);
-  const matchDirect = mockedEndpoints[method][key];
+  const matchDirect = global.netmockMockedEndpoints[method][key];
   const matchByParams = () => Object
-    .values(mockedEndpoints[method])
+    .values(global.netmockMockedEndpoints[method])
     .find((mockedEndpoint) => mockedEndpoint.urlRegex.test(key));
 
   return matchDirect || matchByParams();
