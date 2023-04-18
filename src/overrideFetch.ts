@@ -2,12 +2,14 @@ import { findMockedEndpoint, findMockedMethod, getMockedEndpointMetadata } from 
 import {
   captureStack, getRequestMethod, getUrl, getErrorWithCorrectStack,
 } from './utils';
-import { clearCurrentNetmockReplyTrace, getCurrentNetmockReplyTrace, NetmockResponse } from './NetmockResponse';
+import {
+  clearCurrentNetmockReplyTrace, getCurrentNetmockReplyTrace, isInstanceOfNetmockResponse, reply,
+} from './NetmockResponse';
 import { isRealNetworkAllowed } from './settings';
 
 export function overrideFetch() {
-  if (!(global as any).originalFetch) {
-    (global as any).originalFetch = global.fetch;
+  if (!global.originalFetch) {
+    global.originalFetch = global.fetch;
   }
   global.fetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     try {
@@ -16,7 +18,7 @@ export function overrideFetch() {
       const mockedEndpoint = findMockedEndpoint(input, method);
       if (!mockedEndpoint) {
         if (isRealNetworkAllowed(url)) {
-          return (global as any).originalFetch(input, init);
+          return await global.originalFetch(input, init);
         }
         let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
         const mockedMethods = findMockedMethod(input);
@@ -39,11 +41,11 @@ export function overrideFetch() {
 
       const replyTrace = getCurrentNetmockReplyTrace();
       clearCurrentNetmockReplyTrace();
-      if (!(res instanceof NetmockResponse)) {
+      if (!isInstanceOfNetmockResponse(res)) {
         if (replyTrace) {
           // throw getErrorWithCorrectStack('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?', replyTrace);
         }
-        res = new NetmockResponse(res);
+        res = reply(res);
       }
 
       const stringifyBody = res.stringifyBody();

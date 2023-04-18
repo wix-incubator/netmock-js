@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import type {
   NetmockResponseFields, NetmockResponseParams, Headers, NetmockResponseType,
 } from './types';
@@ -7,14 +8,17 @@ import { captureStack } from './utils';
  * The netmock response class provides an api to get, set and parse
  * response body and parameters.
  */
-export class NetmockResponse<T> implements NetmockResponseType<T> {
+class NetmockResponse<T> implements NetmockResponseType<T> {
   private params: NetmockResponseFields = {
     body: undefined,
     status: 200,
     delay: 0,
   };
+  // eslint-disable-next-line @typescript-eslint/lines-between-class-members
+  private __isNetmockResponse: boolean;
 
   constructor(body?: T) {
+    this.__isNetmockResponse = true;
     this.params.body = body;
   }
 
@@ -94,4 +98,8 @@ export function getCurrentNetmockReplyTrace() {
 }
 export function clearCurrentNetmockReplyTrace() {
   currentNetmockReplyTrace = undefined;
+}
+
+export function isInstanceOfNetmockResponse(res: any) {
+  return res?.__isNetmockResponse;
 }
