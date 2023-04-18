@@ -1,9 +1,5 @@
-import 'isomorphic-fetch';
-import { reset } from './mockedEndpointsService';
-import { allowRealNetwork } from './settings';
-import { overrideFetch } from './overrideFetch';
-
-// make sure that axios is a singleton
+require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
+// make sure that axios is a singleton in the system
 let actualAxios: any;
 jest.doMock('axios', () => {
   if (!actualAxios) {
@@ -13,15 +9,13 @@ jest.doMock('axios', () => {
 }, { virtual: true });
 
 beforeEach(() => {
+  require('isomorphic-fetch');
+  const { allowRealNetwork } = require('./settings');
+  const { overrideFetch } = require('./overrideFetch');
   overrideFetch();
   allowRealNetwork(false);
-  try {
-    require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
-  } catch {
-    // no need to do anythinng if axios isn't available.
-  }
 });
 
 afterEach(() => {
-  reset();
+  require('./mockedEndpointsService').reset();
 });

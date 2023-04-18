@@ -4,7 +4,7 @@ import { captureStack } from './utils';
 
 export { netlog } from './netlog';
 export { allowRealNetwork } from './settings';
-export { reply, NetmockResponse } from './NetmockResponse';
+export { reply } from './NetmockResponse';
 export { reply as resp } from './NetmockResponse';
 export * from './types';
 export const netmock: Netmock = {
