@@ -5,6 +5,15 @@ describe('Settings', () => {
   beforeEach(() => {
     configure = require('netmock-js').configure;
   });
+  it('setting one configuration should not override the other', () => {
+    configure({ allowRealNetwork: true });
+    configure({ suppressQueryParamsInUrlWarnings: true });
+    expect(require('../src/settings').settings).toEqual({
+      allowRealNetwork: true,
+      suppressQueryParamsInUrlWarnings: true,
+    });
+  });
+
   it('should throw an exception if network is disabled and an unmocked request is fetched', async () => {
     configure({ allowRealNetwork: false });
     await expect(() => fetch('https://wix.com')).rejects.toThrow('Endpoint not mocked');
