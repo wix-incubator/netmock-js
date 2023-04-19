@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-cycle
 import { netlogApi } from './netlog';
+import { settings } from './settings';
 import type {
   MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
 } from './types';
@@ -23,8 +24,16 @@ export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
 }
 
 export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler, stackTrace: string) {
-  if (typeof url === 'string' && isContainingQueryParams(url)) {
-    throw new Error(`Cannot mock endpoint with query params. Please remove the query params from the url. Endpoint: ${url}`);
+  if (typeof url === 'string' && isContainingQueryParams(url) && !settings.suppressQueryParamsInUrlWarnings) {
+    console.warn(`
+    Warning: detected query params inside a url for the following mocked endpoint: ${url}
+
+    If you want to mock according to url params, use the handler's arguments instead:
+    netmock.get('http//bla.com', ({params}) => params.isAdmin? true : false);
+    
+    You can suppress this warning by using netmock's settings:
+    import {settings} from 'netmock-js';
+    settings.suppressQueryParamsInsideUrlWarnings = true;`);
   }
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);

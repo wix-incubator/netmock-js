@@ -10,10 +10,10 @@ jest.doMock('axios', () => {
 
 beforeEach(() => {
   require('isomorphic-fetch');
-  const { allowRealNetwork } = require('./settings');
+  const { configure } = require('./settings');
   const { overrideFetch } = require('./overrideFetch');
   overrideFetch();
-  allowRealNetwork(false);
+  configure({ allowRealNetwork: false });
 });
 
 afterEach(() => {
