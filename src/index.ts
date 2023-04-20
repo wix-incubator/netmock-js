@@ -3,7 +3,7 @@ import { MockedEndpointHandler, Netmock } from './types';
 import { captureStack } from './utils';
 
 export { netlog } from './netlog';
-export { allowRealNetwork } from './settings';
+export { configure } from './settings';
 export { reply } from './NetmockResponse';
 export { reply as resp } from './NetmockResponse';
 export * from './types';

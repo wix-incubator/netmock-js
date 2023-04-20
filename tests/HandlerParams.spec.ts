@@ -79,12 +79,16 @@ describe('Mocked endpoints handler params', () => {
       expect((await axios.get('https://wix.com?firstName=Scarlet&lastName=Johansson')).data).toEqual({ firstName: 'Scarlet', lastName: 'Johansson' });
     });
 
-    it('should throw error if trying to mock endpoint with query params', async () => {
-      expect(() => {
-        netmock.get('https://wix.com?blamos=true', () => {});
-      }).toThrowError(
-        'Cannot mock endpoint with query params. Please remove the query params from the url. Endpoint: https://wix.com?blamos=true',
-      );
+    it('should print warning when trying to mock endpoint with query params', async () => {
+      console.warn = jest.fn();
+      netmock.get('https://wix.com?blamos=true', () => {});
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Warning: detected query params inside a url for the following mocked endpoint: https://wix.com?blamos=true'));
+    });
+    it('should allow suppressing the warning using settings', async () => {
+      console.warn = jest.fn();
+      require('netmock-js').configure({ suppressQueryParamsInUrlWarnings: true });
+      netmock.get('https://wix.com?blamos=true', () => {});
+      expect(console.warn).not.toHaveBeenCalled();
     });
   });
 
