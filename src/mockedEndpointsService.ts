@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-cycle
 import { netlogApi } from './netlog';
-import { settings } from './settings';
+import { getSettings } from './settings';
 import type {
   MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
 } from './types';
@@ -12,19 +12,19 @@ function getCleanState() {
   };
 }
 
-global.netmockMockedEndpoints = getCleanState();
+global.__netmockMockedEndpoints = getCleanState();
 
 export function reset() {
-  global.netmockMockedEndpoints = getCleanState();
+  global.__netmockMockedEndpoints = getCleanState();
 }
 
 export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   const key = getMockedEndpointKey(url);
-  return global.netmockMockedEndpoints[method][key]?.metadata;
+  return global.__netmockMockedEndpoints[method][key]?.metadata;
 }
 
 export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler, stackTrace: string) {
-  if (typeof url === 'string' && isContainingQueryParams(url) && !settings.suppressQueryParamsInUrlWarnings) {
+  if (typeof url === 'string' && isContainingQueryParams(url) && !getSettings().suppressQueryParamsInUrlWarnings) {
     console.warn(`
     Warning: detected query params inside a url for the following mocked endpoint: ${url}
 
@@ -38,7 +38,7 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
   const metadata = getEmptyMetadata();
-  global.netmockMockedEndpoints[method][key] = {
+  global.__netmockMockedEndpoints[method][key] = {
     key,
     handler: getHandlerMetadataCollectorWrapper(handler, metadata),
     urlRegex,
@@ -50,9 +50,9 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
 
 export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEndpoint | undefined {
   const key = getMockedEndpointKey(input);
-  const matchDirect = global.netmockMockedEndpoints[method][key];
+  const matchDirect = global.__netmockMockedEndpoints[method][key];
   const matchByParams = () => Object
-    .values(global.netmockMockedEndpoints[method])
+    .values(global.__netmockMockedEndpoints[method])
     .find((mockedEndpoint) => mockedEndpoint.urlRegex.test(key));
 
   return matchDirect || matchByParams();
