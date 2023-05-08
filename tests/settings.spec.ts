@@ -8,7 +8,7 @@ describe('Settings', () => {
   it('setting one configuration should not override the other', () => {
     configure({ allowRealNetwork: true });
     configure({ suppressQueryParamsInUrlWarnings: true });
-    expect(require('../src/settings').settings).toEqual({
+    expect(require('../src/settings').getSettings()).toEqual({
       allowRealNetwork: true,
       suppressQueryParamsInUrlWarnings: true,
     });

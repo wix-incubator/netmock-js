@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-cycle
 import { netlogApi } from './netlog';
-import { settings } from './settings';
+import { getSettings } from './settings';
 import type {
   MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
 } from './types';
@@ -24,7 +24,7 @@ export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
 }
 
 export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler, stackTrace: string) {
-  if (typeof url === 'string' && isContainingQueryParams(url) && !settings.suppressQueryParamsInUrlWarnings) {
+  if (typeof url === 'string' && isContainingQueryParams(url) && !getSettings().suppressQueryParamsInUrlWarnings) {
     console.warn(`
     Warning: detected query params inside a url for the following mocked endpoint: ${url}
 
