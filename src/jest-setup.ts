@@ -1,4 +1,3 @@
-require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
 // make sure that axios is a singleton in the system
 let actualAxios: any;
 jest.doMock('axios', () => {
@@ -7,6 +6,7 @@ jest.doMock('axios', () => {
   }
   return actualAxios;
 }, { virtual: true });
+require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
 
 beforeEach(() => {
   require('isomorphic-fetch');
