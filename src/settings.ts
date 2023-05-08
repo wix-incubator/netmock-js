@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 global.__netmockSettings = {
   allowRealNetwork: false,
   suppressQueryParamsInUrlWarnings: false,

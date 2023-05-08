@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import type {
   NetmockResponseFields, NetmockResponseParams, Headers, NetmockResponseType,
 } from './types';

@@ -20,6 +20,7 @@
     "rules": {
         "semi": ["error", "always"],
         "comma-dangle": ["error", "always-multiline"],
+        "no-underscore-dangle": "off",
         "global-require" : "off",
         "no-promise-executor-return" : "off",
         "import/prefer-default-export": "off",
