@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 // @ts-nocheck
 import axios from 'axios';
 import settle from 'axios/lib/core/settle';

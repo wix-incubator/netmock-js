@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 let axios: typeof import('axios') | undefined;
 try {
   axios = require('axios');
