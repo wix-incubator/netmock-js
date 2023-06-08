@@ -1,9 +1,22 @@
+/* eslint-disable import/no-extraneous-dependencies */
 // @ts-nocheck
 import axios from 'axios';
 import settle from 'axios/lib/core/settle';
 import buildURL from 'axios/lib/helpers/buildURL';
-import buildFullPath from 'axios/lib/core/buildFullPath';
-import { isUndefined } from 'axios/lib/utils';
+import isAbsoluteURL from 'axios/lib/helpers/isAbsoluteURL';
+import combineURLs from 'axios/lib/helpers/combineURLs';
+
+/**
+ * Creates a new URL by combining the baseURL with the requestedURL,
+ * only when the requestedURL is not already an absolute URL.
+ * If the requestURL is absolute, this function returns the requestedURL untouched.
+ */
+function buildFullPath(baseURL: string, requestedURL: string) {
+  if (baseURL && !isAbsoluteURL(requestedURL)) {
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+}
 
 /**
  * - Create a request object
@@ -123,7 +136,7 @@ function createRequest(config) {
   }
   // This config is similar to XHR’s withCredentials flag, but with three available values instead of two.
   // So if withCredentials is not set, default value 'same-origin' will be used
-  if (!isUndefined(config.withCredentials)) {
+  if (config.withCredentials !== undefined) {
     options.credentials = config.withCredentials ? 'include' : 'omit';
   }
 

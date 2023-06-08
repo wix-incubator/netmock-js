@@ -1,12 +1,22 @@
+/* eslint-disable import/no-extraneous-dependencies */
+let axios: typeof import('axios') | undefined;
+try {
+  axios = require('axios');
+} catch {
+  //
+}
+
+if (axios) {
 // make sure that axios is a singleton in the system
-let actualAxios: any;
-jest.doMock('axios', () => {
-  if (!actualAxios) {
-    actualAxios = jest.requireActual('axios');
-  }
-  return actualAxios;
-}, { virtual: true });
-require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
+  let actualAxios: any;
+  jest.doMock('axios', () => {
+    if (!actualAxios) {
+      actualAxios = jest.requireActual('axios');
+    }
+    return actualAxios;
+  }, { virtual: true });
+  require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
+}
 
 beforeEach(() => {
   require('isomorphic-fetch');
