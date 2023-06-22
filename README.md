@@ -88,8 +88,7 @@ usage:
 ```
 
 ### Using with axios:
-netmock tries to automatically detect if you are using axios and apply the relevant mocks for you, but if you have multiple instances of axios
-in your node_modules, you need to explicit tell axios which axios instance to mock:
+Netmock attempts to automatically detect if you are using Axios and applies the relevant mocks for you. However, if you have multiple instances of Axios in your `node_modules`, you need to explicitly specify which Axios instance netmock should mock:
 ```javascript
 //inside jest-setup file:
 import {mockAxios} from 'netmock-js';
