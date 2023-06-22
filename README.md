@@ -87,6 +87,16 @@ usage:
     expect(netlog('post', mockedEndpointUrl).getRequest(1).query).toEqual({ value: 'true'});
 ```
 
+### Using with axios:
+Netmock attempts to automatically detect if you are using Axios and applies the relevant mocks for you. However, if you have multiple instances of Axios in your `node_modules`, you need to explicitly specify which Axios instance netmock should mock:
+```javascript
+//inside jest-setup file:
+import {mockAxios} from 'netmock-js';
+beforeEach(() => {
+   mockAxios(require('axios'));
+});
+
+```
 ### Configurations:
 #### **allowRealNetwork: boolean | RegExp**
 Netmock will block any real network by default. In order to allow real network requests (to unmocked endpoints), you can do the following:
