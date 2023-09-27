@@ -31,9 +31,15 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
     If you want to mock according to url params, use the handler's arguments instead:
     netmock.get('http//bla.com', ({params}) => params.isAdmin? true : false);
     
-    You can suppress this warning by using netmock's settings:
-    import {settings} from 'netmock-js';
-    settings.suppressQueryParamsInsideUrlWarnings = true;`);
+    You can suppress this warning by using configuring netmock in your jest-setup file:
+    
+    import {configure} from 'netmock-js;
+    beforeEach(() => {
+      configure({
+        suppressQueryParamsInUrlWarnings: true;
+      });
+    });
+    `);
   }
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
