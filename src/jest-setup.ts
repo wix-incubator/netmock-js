@@ -6,17 +6,19 @@ try {
   //
 }
 
-if (axios) {
-// make sure that axios is a singleton in the system
-  let actualAxios: any;
-  jest.doMock('axios', () => {
-    if (!actualAxios) {
-      actualAxios = jest.requireActual('axios');
-    }
-    return actualAxios;
-  }, { virtual: true });
-  require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
-}
+let actualHttps: any;
+jest.doMock('https', () => {
+  if (!actualHttps) {
+    actualHttps = jest.requireActual('https');
+  }
+  return {
+    ...actualHttps,
+    request: (...params: any[]) => {
+      console.log(`params: ${JSON.stringify(params)}`);
+      return actualHttps.request(...params);
+    },
+  };
+}, { virtual: true });
 
 beforeEach(() => {
   require('isomorphic-fetch');
