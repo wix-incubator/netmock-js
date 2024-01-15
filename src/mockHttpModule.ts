@@ -9,12 +9,14 @@
 //   isInstanceOfNetmockResponse, reply,
 // } from './NetmockResponse';
 
-import {getUrl} from "./utils";
+import { ClientRequestArgs } from 'http';
+import {getUrlForHttp} from './utils';
 
-export async function httpRequest(config: any) {
+export async function httpRequest(config: ClientRequestArgs) {
   console.log(`BLBBL config: ${JSON.stringify(config)}`);
   try {
-    const url = decodeURI(getUrl(config));
+    const url = decodeURI(getUrlForHttp(config));
+    console.log(`url: ${url}`);
     // const method = getRequestMethod(input, init);
     // const mockedEndpoint = findMockedEndpoint(input, method);
     // if (!mockedEndpoint) {

@@ -1,4 +1,5 @@
 import { Method } from './types';
+import {ClientRequestArgs} from "http";
 
 export function getUrl(input: RequestInfo): string {
   if (typeof input === 'string') { // If input is a string, it is the url
@@ -8,6 +9,9 @@ export function getUrl(input: RequestInfo): string {
   return input.url;
 }
 
+export function getUrlForHttp(request: ClientRequestArgs): string {
+  return (request.protocol ?? 'http').concat('://').concat(request.hostname ?? '');
+}
 export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   if (input instanceof RegExp) {
     return `${input}`;
