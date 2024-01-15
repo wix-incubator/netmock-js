@@ -10,7 +10,7 @@ export function getUrl(input: RequestInfo): string {
 }
 
 export function getUrlForHttp(request: ClientRequestArgs): string {
-  return (request.protocol ?? 'http').concat('://').concat(request.hostname ?? '');
+  return (request.protocol ?? 'http:').concat('//').concat(request.hostname ?? '').concat(request.path ?? '');
 }
 export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   if (input instanceof RegExp) {
@@ -21,11 +21,22 @@ export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
 }
 
+export function getMockedEndpointKeyForHttp(request: ClientRequestArgs): string {
+  const parsedUrl = new URL(getUrlForHttp(request));
+  const cleanUrl = parsedUrl.origin + parsedUrl.pathname;
+  return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
+}
+
+
 export function getRequestMethod(input: RequestInfo, init?: RequestInit): Method {
   if (typeof input === 'object') { // input is a Request instance
     return input.method.toLowerCase() as Method;
   }
   return init?.method ? init.method.toLowerCase() as Method : 'get';
+}
+
+export function getRequestMethodForHttp(request: ClientRequestArgs): Method {
+  return request?.method ? request.method.toLowerCase() as Method : 'get';
 }
 
 function escapeRegExpChars(str: string) {

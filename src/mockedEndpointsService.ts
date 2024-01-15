@@ -1,10 +1,11 @@
 // eslint-disable-next-line import/no-cycle
+import { ClientRequestArgs } from 'http';
 import { netlogApi } from './netlog';
 import { getSettings } from './settings';
 import type {
   MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
 } from './types';
-import { getMockedEndpointKey, convertUrlToRegex } from './utils';
+import { getMockedEndpointKey, convertUrlToRegex, getMockedEndpointKeyForHttp } from './utils';
 
 function getCleanState() {
   return {
@@ -56,6 +57,18 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
 
 export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEndpoint | undefined {
   const key = getMockedEndpointKey(input);
+  const matchDirect = global.__netmockMockedEndpoints[method][key];
+  const matchByParams = () => Object
+    .values(global.__netmockMockedEndpoints[method])
+    .find((mockedEndpoint) => mockedEndpoint.urlRegex.test(key));
+
+  return matchDirect || matchByParams();
+}
+
+export function findMockedEndpointForHttp(request: ClientRequestArgs, method: Method): MockedEndpoint | undefined {
+  const key = getMockedEndpointKeyForHttp(request);
+  console.log(`key: ${key}`)
+  console.log(`global.__netmockMockedEndpoints: ${JSON.stringify(global.__netmockMockedEndpoints)}`);
   const matchDirect = global.__netmockMockedEndpoints[method][key];
   const matchByParams = () => Object
     .values(global.__netmockMockedEndpoints[method])

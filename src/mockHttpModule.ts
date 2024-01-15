@@ -10,15 +10,17 @@
 // } from './NetmockResponse';
 
 import { ClientRequestArgs } from 'http';
-import {getUrlForHttp} from './utils';
+import {getRequestMethodForHttp, getUrlForHttp} from './utils';
+import {findMockedEndpoint, findMockedEndpointForHttp} from "./mockedEndpointsService";
 
-export async function httpRequest(config: ClientRequestArgs) {
-  console.log(`BLBBL config: ${JSON.stringify(config)}`);
+export async function httpRequest(request: ClientRequestArgs) {
+  console.log(`BLBBL config: ${JSON.stringify(request)}`);
   try {
-    const url = decodeURI(getUrlForHttp(config));
+    const url = decodeURI(getUrlForHttp(request));
     console.log(`url: ${url}`);
-    // const method = getRequestMethod(input, init);
-    // const mockedEndpoint = findMockedEndpoint(input, method);
+    const method = getRequestMethodForHttp(request);
+    const mockedEndpoint = findMockedEndpointForHttp(request, method);
+    console.log(`mockedEndpoint: ${mockedEndpoint}`);
     // if (!mockedEndpoint) {
     //   if (isRealNetworkAllowed(url)) {
     //     return await global.originalFetch(input, init);
