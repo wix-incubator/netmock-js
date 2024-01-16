@@ -1,31 +1,28 @@
 import { ClientRequestArgs } from 'http';
-import { getRequestMethodForHttp, getUrlForHttp } from './utils';
+import {captureStack, getErrorWithCorrectStack, getRequestMethodForHttp, getUrlForHttp} from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
 
 export function httpRequest(request: ClientRequestArgs, cb: CallBack, isHttpsRequest: boolean) {
-  console.log(`BLBBL config: ${JSON.stringify(request)}`);
   try {
+    console.log(`BLBBL config: ${JSON.stringify(request)}`);
+    const func = isHttpsRequest ? global.originalHttps.request : global.originalHttp.request
     const url = decodeURI(getUrlForHttp(request));
     console.log(`url: ${url}`);
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
-    console.log(`mockedEndpoint: ${mockedEndpoint}`);
     if (!mockedEndpoint) {
-      console.log('here1');
       if (isRealNetworkAllowed(url)) {
-        const func = isHttpsRequest ? global.originalHttps.request : global.originalHttp.request
         return func(request, cb);
       }
       let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
       const mockedMethods = findMockedMethodForHttp(request);
+      console.log(`mockedMethods: ${mockedMethods}`);
       if (mockedMethods.length > 0) {
         message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
       }
 
-      console.log(`message: ${message}`);
-
-      // throw getErrorWithCorrectStack(message, captureStack(global.fetch));
+      throw getErrorWithCorrectStack(message, captureStack(func));
     }
     return { bla: 3 };
     // const rawRequest = new global.Request(input, init);

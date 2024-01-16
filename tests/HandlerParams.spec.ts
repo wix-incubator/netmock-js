@@ -9,10 +9,10 @@ describe('Mocked endpoints handler params', () => {
 
   describe.only('URL Params', () => {
     it.only('should mock a request url with params', async () => {
-      // netmock.get('https://wix.com/:id', (req) => req.params.id);
+      // netmock.put('https://wix.com/:id', (req) => req.params.id);
 
-      expect(await (await fetch('http://api.42.wixprod.net/serverless-mobile-dev/serverless/mobile-dev/oneApp/getRepoFile?repoName=wix-one-app-dependencies&filePath=packages/wix-one-app-dependencies/package.json')).text()).toEqual('5');
-      // expect((await axios.get('https://wix.com/5')).data).toEqual(5);
+      expect(await (await fetch('https://wix.com/5')).text()).toEqual('5');
+      expect((await axios.get('https://wix.com/5')).data).toEqual(5);
 
       // expect(await (await fetch('https://wix.com/3')).text()).toEqual('3');
       // expect((await axios.get('https://wix.com/3')).data).toEqual(3);

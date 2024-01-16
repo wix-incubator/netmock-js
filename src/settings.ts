@@ -13,7 +13,7 @@ export function getSettings() {
 
 export function isRealNetworkAllowed(url: string) {
   if (typeof global.__netmockSettings.allowRealNetwork === 'boolean') {
-    return global.__netmockSettings.allowRealNetwork || true;
+    return global.__netmockSettings.allowRealNetwork;
   }
-  return global.__netmockSettings.allowRealNetwork.test(url) || true;
+  return global.__netmockSettings.allowRealNetwork.test(url);
 }
