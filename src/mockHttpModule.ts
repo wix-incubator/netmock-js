@@ -1,38 +1,9 @@
-// import {
-//   captureStack, getErrorWithCorrectStack, getRequestMethod, getUrl,
-// } from './utils';
-// import { findMockedEndpoint, findMockedMethod, getMockedEndpointMetadata } from './mockedEndpointsService';
-// import { isRealNetworkAllowed } from './settings';
-// import {
-//   clearCurrentNetmockReplyTrace,
-//   getCurrentNetmockReplyTrace,
-//   isInstanceOfNetmockResponse, reply,
-// } from './NetmockResponse';
-import util from 'util';
-
 import { ClientRequestArgs } from 'http';
 import { getRequestMethodForHttp, getUrlForHttp } from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
 
-async function callOriginalHttpModule(request: ClientRequestArgs, isHttpsRequest: boolean) {
-  const func = isHttpsRequest ? global.originalHttps.request : global.originalHttp.request;
-  return new Promise((resolve, reject) => {
-    console.log(`request: ${JSON.stringify(request)}`);
-    const req = func(request, (res: any) => {
-      res.on('data', (chunk: any) => {
-        console.log(`chunk: ${chunk}`);
-        resolve(res);
-      });
-    });
-    req.on('error', (e: Error) => {
-      console.log(`problem with request: ${e.message}`);
-      reject(e);
-    });
-  });
-}
-
-export async function httpRequest(request: ClientRequestArgs, isHttpsRequest: boolean) {
+export function httpRequest(request: ClientRequestArgs, cb: CallBack, isHttpsRequest: boolean) {
   console.log(`BLBBL config: ${JSON.stringify(request)}`);
   try {
     const url = decodeURI(getUrlForHttp(request));
@@ -43,9 +14,8 @@ export async function httpRequest(request: ClientRequestArgs, isHttpsRequest: bo
     if (!mockedEndpoint) {
       console.log('here1');
       if (isRealNetworkAllowed(url)) {
-        const res = await callOriginalHttpModule(request, isHttpsRequest);
-        console.log(`res: ${res}`);
-        return res;
+        const func = isHttpsRequest ? global.originalHttps.request : global.originalHttp.request
+        return func(request, cb);
       }
       let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
       const mockedMethods = findMockedMethodForHttp(request);
