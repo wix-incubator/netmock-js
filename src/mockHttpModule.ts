@@ -1,18 +1,27 @@
 import { ClientRequestArgs } from 'http';
-import {captureStack, getErrorWithCorrectStack, getRequestMethodForHttp, getUrlForHttp} from './utils';
-import { findMockedEndpointForHttp, findMockedMethodForHttp } from './mockedEndpointsService';
+import httpMock from 'node-mocks-http';
+import {
+  captureStack, getErrorWithCorrectStack, getRequestMethodForHttp, getUrlForHttp,
+} from './utils';
+import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadata } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
+import {
+  clearCurrentNetmockReplyTrace,
+  getCurrentNetmockReplyTrace,
+  isInstanceOfNetmockResponse, reply,
+} from './NetmockResponse';
 
-export function httpRequest(request: ClientRequestArgs, cb: CallBack, isHttpsRequest: boolean) {
+export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any }, cb: CallBack, isHttpsRequest: boolean) {
   try {
     console.log(`BLBBL config: ${JSON.stringify(request)}`);
-    const func = isHttpsRequest ? global.originalHttps.request : global.originalHttp.request
+    const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
+    const func = originalModule.request;
     const url = decodeURI(getUrlForHttp(request));
     console.log(`url: ${url}`);
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
     if (!mockedEndpoint) {
-      if (isRealNetworkAllowed(url)) {
+      if (isRealNetworkAllowed(url) || true) {
         return func(request, cb);
       }
       let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
@@ -24,35 +33,36 @@ export function httpRequest(request: ClientRequestArgs, cb: CallBack, isHttpsReq
 
       throw getErrorWithCorrectStack(message, captureStack(func));
     }
-    return { bla: 3 };
-    // const rawRequest = new global.Request(input, init);
-    // const headers = Object.fromEntries(rawRequest.headers.entries());
-    // const query = Object.fromEntries(new URL(url).searchParams);
-    // const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
-    // const body = rawRequest.body ? rawRequest.body!.toString() : undefined;
-    // clearCurrentNetmockReplyTrace();
-    // const metadata = getMockedEndpointMetadata(method, url);
-    // let res = await mockedEndpoint.handler({
-    //   rawRequest, query, params, headers, body,
-    // }, { callCount: metadata?.calls.length });
-    //
-    // const replyTrace = getCurrentNetmockReplyTrace();
-    // clearCurrentNetmockReplyTrace();
-    // if (!isInstanceOfNetmockResponse(res)) {
-    //   if (replyTrace) {
-    //     // throw getErrorWithCorrectStack('Error: detected unreturned reply. Did you used "reply()" instead of "return reply()"?', replyTrace);
-    //   }
-    //   res = reply(res);
-    // }
+    const headers = request.headers;
+    const query = request.query;
+    const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
+    const body = request.body;
+
+    const metadata = getMockedEndpointMetadata(method, url);
+
+    let res = mockedEndpoint.handler({
+      // @ts-ignore
+      rawRequest: request, query, params, headers, body,
+    }, { callCount: metadata?.calls.length });
+    if (!isInstanceOfNetmockResponse(res)) {
+      res = reply(res);
+    }
+    cb(res);
     //
     // const stringifyBody = res.stringifyBody();
+    // console.log(`stringifyBody: ${stringifyBody}`)
     // const responseParams = res.getResponseParams();
+    // console.log(`responseParams: ${responseParams}`);
     // const response = new global.Response(stringifyBody, responseParams);
-    // const responsePromise = new Promise<Response>((resolve) => {
-    //   setTimeout(() => resolve(response), responseParams.delay);
-    // });
+    // console.log(`response: ${JSON.stringify(response)}`);
+    // if (responseParams.delay) {
+    //   setTimeout(() => cb(response), responseParams.delay);
+    // } else {
+    //   cb(response);
+    // }
     //
-    // return await responsePromise;
+    // cb(res);
+    // return null;
   } catch (e) {
     return Promise.reject(e);
   }
