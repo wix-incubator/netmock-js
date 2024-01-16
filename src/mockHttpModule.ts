@@ -44,10 +44,18 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       // @ts-ignore
       rawRequest: request, query, params, headers, body,
     }, { callCount: metadata?.calls.length });
+    console.log(`res0: ${res}`);
     if (!isInstanceOfNetmockResponse(res)) {
       res = reply(res);
     }
-    cb(res);
+    console.log(`res1: ${JSON.stringify(res)}`);
+    const stringifyBody = res.stringifyBody();
+    console.log(`stringifyBody: ${stringifyBody}`);
+    const responseParams = res.getResponseParams();
+    console.log(`responseParams: ${JSON.stringify(responseParams)}`)
+    const response = new global.Response(stringifyBody, responseParams);
+    console.log(`response: ${JSON.stringify(response)}`);
+    cb(response);
     //
     // const stringifyBody = res.stringifyBody();
     // console.log(`stringifyBody: ${stringifyBody}`)
