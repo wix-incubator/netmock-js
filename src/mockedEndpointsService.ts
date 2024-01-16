@@ -67,8 +67,6 @@ export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEn
 
 export function findMockedEndpointForHttp(request: ClientRequestArgs, method: Method): MockedEndpoint | undefined {
   const key = getMockedEndpointKeyForHttp(request);
-  console.log(`key: ${key}`)
-  console.log(`global.__netmockMockedEndpoints: ${JSON.stringify(global.__netmockMockedEndpoints)}`);
   const matchDirect = global.__netmockMockedEndpoints[method][key];
   const matchByParams = () => Object
     .values(global.__netmockMockedEndpoints[method])
@@ -80,6 +78,11 @@ export function findMockedEndpointForHttp(request: ClientRequestArgs, method: Me
 export function findMockedMethod(input: RequestInfo) {
   const methods: Method[] = ['get', 'post', 'put', 'delete', 'patch'];
   return methods.filter((method) => !!findMockedEndpoint(input, method));
+}
+
+export function findMockedMethodForHttp(request: ClientRequestArgs) {
+  const methods: Method[] = ['get', 'post', 'put', 'delete', 'patch'];
+  return methods.filter((method) => !!findMockedEndpointForHttp(request, method));
 }
 
 function getHandlerMetadataCollectorWrapper(handler: MockedEndpointHandler, metadata: MockedEndpointMetaData): MockedEndpointHandler {

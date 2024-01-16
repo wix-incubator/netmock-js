@@ -10,29 +10,35 @@
 // } from './NetmockResponse';
 
 import { ClientRequestArgs } from 'http';
-import {getRequestMethodForHttp, getUrlForHttp} from './utils';
-import {findMockedEndpoint, findMockedEndpointForHttp} from "./mockedEndpointsService";
+import { getRequestMethodForHttp, getUrlForHttp } from './utils';
+import { findMockedEndpointForHttp, findMockedMethodForHttp } from './mockedEndpointsService';
+import { isRealNetworkAllowed } from './settings';
 
 export async function httpRequest(request: ClientRequestArgs) {
   console.log(`BLBBL config: ${JSON.stringify(request)}`);
   try {
+    const isHttpsRequest = request.protocol === 'https';
     const url = decodeURI(getUrlForHttp(request));
     console.log(`url: ${url}`);
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
     console.log(`mockedEndpoint: ${mockedEndpoint}`);
-    // if (!mockedEndpoint) {
-    //   if (isRealNetworkAllowed(url)) {
-    //     return await global.originalFetch(input, init);
-    //   }
-    //   let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
-    //   const mockedMethods = findMockedMethod(input);
-    //   if (mockedMethods.length > 0) {
-    //     message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
-    //   }
-    //
-    //   throw getErrorWithCorrectStack(message, captureStack(global.fetch));
-    // }
+    if (!mockedEndpoint) {
+      if (isRealNetworkAllowed(url)) {
+        // @ts-ignore
+        return await (isHttpsRequest ? global.originalHttps.request(request) : global.originalHttp.request(request));
+      }
+      let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
+      const mockedMethods = findMockedMethodForHttp(request);
+      if (mockedMethods.length > 0) {
+        message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
+      }
+
+      console.log(`message: ${message}`);
+
+      // throw getErrorWithCorrectStack(message, captureStack(global.fetch));
+    }
+    return {bla: 3};
     // const rawRequest = new global.Request(input, init);
     // const headers = Object.fromEntries(rawRequest.headers.entries());
     // const query = Object.fromEntries(new URL(url).searchParams);

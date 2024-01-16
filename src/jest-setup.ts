@@ -2,7 +2,10 @@
 
 import { httpRequest } from './mockHttpModule';
 
-console.log('mocking http');
+// @ts-ignore
+global.originalHttps = jest.requireActual('https');
+// @ts-ignore
+global.originalHttp = jest.requireActual('http');
 jest.doMock('https', () => {
   return {
     ...jest.requireActual('https'),
