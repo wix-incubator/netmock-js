@@ -1,7 +1,6 @@
 import { registerMockedEndpoint } from './mockedEndpointsService';
 import { MockedEndpointHandler, Netmock } from './types';
 import { captureStack } from './utils';
-console.log(`FIRST log`);
 
 export { netlog } from './netlog';
 export { configure } from './settings';

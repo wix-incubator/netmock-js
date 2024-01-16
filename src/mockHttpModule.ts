@@ -8,25 +8,44 @@
 //   getCurrentNetmockReplyTrace,
 //   isInstanceOfNetmockResponse, reply,
 // } from './NetmockResponse';
+import util from 'util';
 
 import { ClientRequestArgs } from 'http';
 import { getRequestMethodForHttp, getUrlForHttp } from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
 
-export async function httpRequest(request: ClientRequestArgs) {
+async function callOriginalHttpModule(request: ClientRequestArgs, isHttpsRequest: boolean) {
+  const func = isHttpsRequest ? global.originalHttps.request : global.originalHttp.request;
+  return new Promise((resolve, reject) => {
+    console.log(`request: ${JSON.stringify(request)}`);
+    const req = func(request, (res: any) => {
+      res.on('data', (chunk: any) => {
+        console.log(`chunk: ${chunk}`);
+        resolve(res);
+      });
+    });
+    req.on('error', (e: Error) => {
+      console.log(`problem with request: ${e.message}`);
+      reject(e);
+    });
+  });
+}
+
+export async function httpRequest(request: ClientRequestArgs, isHttpsRequest: boolean) {
   console.log(`BLBBL config: ${JSON.stringify(request)}`);
   try {
-    const isHttpsRequest = request.protocol === 'https';
     const url = decodeURI(getUrlForHttp(request));
     console.log(`url: ${url}`);
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
     console.log(`mockedEndpoint: ${mockedEndpoint}`);
     if (!mockedEndpoint) {
+      console.log('here1');
       if (isRealNetworkAllowed(url)) {
-        // @ts-ignore
-        return await (isHttpsRequest ? global.originalHttps.request(request) : global.originalHttp.request(request));
+        const res = await callOriginalHttpModule(request, isHttpsRequest);
+        console.log(`res: ${res}`);
+        return res;
       }
       let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
       const mockedMethods = findMockedMethodForHttp(request);
@@ -38,7 +57,7 @@ export async function httpRequest(request: ClientRequestArgs) {
 
       // throw getErrorWithCorrectStack(message, captureStack(global.fetch));
     }
-    return {bla: 3};
+    return { bla: 3 };
     // const rawRequest = new global.Request(input, init);
     // const headers = Object.fromEntries(rawRequest.headers.entries());
     // const query = Object.fromEntries(new URL(url).searchParams);
