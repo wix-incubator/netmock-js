@@ -37,7 +37,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       // @ts-ignore
       rawRequest: new Request(request), query, params, headers, body,
     }, { callCount: metadata?.calls.length }) || '';
-    if (typeof res === 'object' && !isPromise(res)) {
+    if (typeof res === 'object' && !isPromise(res) && !isInstanceOfNetmockResponse(res)) {
       res = JSON.stringify(res);
     }
     let responseObject: ResponseObject = {
@@ -45,7 +45,9 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       location: 'BLA',
       statusCode: 200,
       once: () => {},
-      pipe: () => getResStr(res),
+      pipe: () => {
+        return getResStr(res)
+      },
     };
     const finalResponse = {
       ...responseObject,
