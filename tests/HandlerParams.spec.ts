@@ -1,5 +1,4 @@
 describe('Mocked endpoints handler params', () => {
-  console.log('first log in describe');
   const axios = require('axios');
   let netmock: typeof import('../src').netmock;
 
@@ -7,7 +6,7 @@ describe('Mocked endpoints handler params', () => {
     netmock = require('netmock-js').netmock;
   });
 
-  describe.only('URL Params', () => {
+  describe('URL Params', () => {
     it('should mock a request url with params', async () => {
       netmock.get('https://wix.com/:id', (req) => req.params.id);
 
@@ -18,7 +17,7 @@ describe('Mocked endpoints handler params', () => {
       expect((await axios.get('https://wix.com/3')).data).toEqual(3);
     });
 
-    it.only('should mock a request url with one param in the middle', async () => {
+    it('should mock a request url with one param in the middle', async () => {
       netmock.get('https://wix.com/user/:id/photo', (req) => {
         expect(req.params.id).toEqual('5');
       });
@@ -51,7 +50,7 @@ describe('Mocked endpoints handler params', () => {
     });
   });
 
-  describe('Query Params', () => {
+  describe.only('Query Params', () => {
     it('should mock a request with query', async () => {
       netmock.get('https://wix.com', (req) => {
         if (req.query.blamos) {
@@ -92,7 +91,7 @@ describe('Mocked endpoints handler params', () => {
     });
   });
 
-  it('should have convenient request headers', async () => {
+  it.only('should have convenient request headers', async () => {
     netmock.get('https://wix.com', (req) => {
       expect(req.headers).toEqual(expect.objectContaining({ blamos: 'true' }));
     });

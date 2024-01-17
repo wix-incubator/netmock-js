@@ -11,7 +11,7 @@ import {
   isInstanceOfNetmockResponse, reply,
 } from './NetmockResponse';
 
-export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any }, cb?: CallBack, isHttpsRequest?: boolean) {
+export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
   try {
     const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
     const func = originalModule.request;
@@ -30,23 +30,28 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
 
       throw getErrorWithCorrectStack(message, captureStack(func));
     }
+    console.log(`request before:: ${JSON.stringify(request)}`)
     const headers = request.headers;
-    const query = request.query;
+    const query = parseQuery(request.query || request.search);
     const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
     const body = request.body;
 
     const metadata = getMockedEndpointMetadata(method, url);
 
-    const res = mockedEndpoint.handler({
+    let res = mockedEndpoint.handler({
       // @ts-ignore
       rawRequest: request, query, params, headers, body,
     }, { callCount: metadata?.calls.length }) || '';
+    if (typeof res === 'object') {
+      res = JSON.stringify(res);
+    }
     const responseObject = {
       headers: {},
       location: 'BLA',
       data: res,
       statusCode: 200,
-      once: (...args: any[]) => console.log(`args once: ${args}`),
+      on: () => {console.log('other on function')},
+      once: () => {},
       pipe: () => res,
     };
     const finalResponse = {
@@ -71,28 +76,25 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       setTimeout(() => cb(finalResponse), 0);
     }
     return cb ? {
-      // on: (onCb: any) => { console.log(`on args: ${onCb}`); },
       on: (eventName: string, onCB: CallBack) => {
-        console.log(`eventName2: ${eventName}`);
         if (['response'].includes(eventName)) {
           onCB(responseObject);
           return res;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
           onCB({
-            emit: (...args: any[]) => console.log(`args emit: ${args}`),
+            emit: () => {},
           });
           return res;
         }
       },
-      destroy: (onCb: any) => { console.log(`destroy args: ${onCb}`); },
-      end: (...args: any[]) => { console.log(`destroy args: ${args}`); },
+      destroy: () => { },
+      end: () => { },
       location: 'BLA',
       data: res,
       statusCode: 200,
     } : finalResponse;
   } catch (e) {
-    console.log(`e: ${e}`);
     return Promise.reject(e);
   }
 }
@@ -111,4 +113,17 @@ function stringifyWithOneLevel(obj: any) {
   }
 
   return JSON.stringify(obj, replacer);
+}
+
+function parseQuery(queryString?: string) {
+  if (!queryString) {
+    return '';
+  }
+  const query: { [key: string]: string } = {};
+  const pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+  pairs.forEach((item) => {
+    const pair = item.split('=');
+    query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+  });
+  return query;
 }

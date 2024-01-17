@@ -8,11 +8,7 @@ global.originalHttps = jest.requireActual('https');
 global.originalHttp = jest.requireActual('http');
 jest.doMock('https', () => ({
   ...jest.requireActual('https'),
-  request: (request: ClientRequestArgs, cb: CallBack) => {
-    console.log(`JEST-SETUP request: ${JSON.stringify(request)}`)
-    console.log(`JEST-SETUP cb: ${cb}`)
-    return httpRequest(request, cb, true);
-  },
+  request: (request: ClientRequestArgs, cb: CallBack) => httpRequest(request, cb, true),
 }));
 jest.doMock('http', () => ({
   ...jest.requireActual('http'),
