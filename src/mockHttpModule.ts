@@ -30,8 +30,8 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
 
       throw getErrorWithCorrectStack(message, captureStack(func));
     }
-    console.log(`request before:: ${JSON.stringify(request)}`)
-    const headers = request.headers;
+    // @ts-ignore
+    const headers = getHeaders(request.headers);
     const query = parseQuery(request.query || request.search);
     const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
     const body = request.body;
@@ -40,7 +40,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
 
     let res = mockedEndpoint.handler({
       // @ts-ignore
-      rawRequest: request, query, params, headers, body,
+      rawRequest: new Request(request), query, params, headers, body,
     }, { callCount: metadata?.calls.length }) || '';
     if (typeof res === 'object') {
       res = JSON.stringify(res);
@@ -50,7 +50,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       location: 'BLA',
       data: res,
       statusCode: 200,
-      on: () => {console.log('other on function')},
+      on: () => { console.log('other on function'); },
       once: () => {},
       pipe: () => res,
     };
@@ -126,4 +126,8 @@ function parseQuery(queryString?: string) {
     query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
   });
   return query;
+}
+function getHeaders(originalHeaders?: { [key: string]: string }) {
+  const initialHeaders = originalHeaders || {};
+  return Object.keys(initialHeaders).reduce((prev, cur) => ({ ...prev, [cur]: initialHeaders[cur].toString() }), {});
 }

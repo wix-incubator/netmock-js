@@ -50,7 +50,7 @@ describe('Mocked endpoints handler params', () => {
     });
   });
 
-  describe.only('Query Params', () => {
+  describe('Query Params', () => {
     it('should mock a request with query', async () => {
       netmock.get('https://wix.com', (req) => {
         if (req.query.blamos) {
@@ -91,7 +91,7 @@ describe('Mocked endpoints handler params', () => {
     });
   });
 
-  it.only('should have convenient request headers', async () => {
+  it('should have convenient request headers', async () => {
     netmock.get('https://wix.com', (req) => {
       expect(req.headers).toEqual(expect.objectContaining({ blamos: 'true' }));
     });
