@@ -30,7 +30,7 @@ describe('Response', () => {
     });
   });
 
-  it.only('should support async handler', async () => { //TODO ask nir
+  it('should support async handler', async () => {
     netmock.get('https://wix.com', async () => reply('Mocked Text'));
     netmock.get('https://blamos.com', async () => 'another mocked text');
 

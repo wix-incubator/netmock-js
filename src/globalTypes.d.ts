@@ -21,5 +21,5 @@ type ResponseObject = {
   location: string,
   statusCode: number,
   once: () => void,
-  pipe: () => any,
+  pipe: () => Promise<any>,
 };

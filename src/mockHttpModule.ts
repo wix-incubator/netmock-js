@@ -45,22 +45,24 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       location: 'BLA',
       statusCode: 200,
       once: () => {},
-      pipe: () => res,
+      pipe: () => getResStr(res),
     };
     const finalResponse = {
       ...responseObject,
       on: async (eventName: string, onCB: CallBack) => {
+        console.log(`eventName: ${eventName}`);
         res = isPromise(res) ? await res : res;
         responseObject = convertResponse(responseObject, res);
         let returnValue;
         if (eventName === 'data') {
-          returnValue = isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody : res;
+          returnValue = getResStr(res);
         } else if (eventName === 'response') {
           returnValue = responseObject;
         } else {
           returnValue = { emit: () => {} };
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
+          console.log(`returnValue: ${JSON.stringify(returnValue)}`);
           onCB(returnValue);
           return returnValue;
         }
@@ -119,16 +121,21 @@ function isPromise(obj: any) {
 }
 
 function convertResponse<T>(originalResponse: ResponseObject, response: NetmockResponseType<T>) {
-  if (isInstanceOfNetmockResponse(response)){
+  if (isInstanceOfNetmockResponse(response)) {
+    const netmockRes = response.getResponseParams();
     return {
       ...originalResponse,
+      statusCode: netmockRes.status,
       ...(response.getResponseParams()),
       data: response.stringifyBody(),
     };
-  } else {
-    return {
-      ...originalResponse,
-      data: response,
-    };
   }
+  return {
+    ...originalResponse,
+    data: response,
+  };
+}
+
+function getResStr(res: any) {
+  return isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody() : res;
 }
