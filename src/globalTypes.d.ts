@@ -16,3 +16,10 @@ type NetmockSettings = {
   allowRealNetwork: boolean | RegExp;
   suppressQueryParamsInUrlWarnings: boolean;
 };
+type ResponseObject = {
+  headers: object,
+  location: string,
+  statusCode: number,
+  once: () => void,
+  pipe: () => any,
+};

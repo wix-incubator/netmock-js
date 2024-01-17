@@ -1,9 +1,11 @@
-import {ClientRequestArgs, OutgoingHttpHeaders} from 'http';
+import { ClientRequestArgs, OutgoingHttpHeaders } from 'http';
 import {
   captureStack, getErrorWithCorrectStack, getRequestMethodForHttp, getUrlForHttp,
 } from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadata } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
+import { NetmockResponseType } from './types';
+import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
   try {
@@ -35,23 +37,24 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       // @ts-ignore
       rawRequest: new Request(request), query, params, headers, body,
     }, { callCount: metadata?.calls.length }) || '';
-    if (typeof res === 'object') {
+    if (typeof res === 'object' && !isPromise(res)) {
       res = JSON.stringify(res);
     }
-    const responseObject = {
+    let responseObject: ResponseObject = {
       headers: {},
       location: 'BLA',
-      data: res,
       statusCode: 200,
       once: () => {},
       pipe: () => res,
     };
     const finalResponse = {
       ...responseObject,
-      on: (eventName: string, onCB: CallBack) => {
+      on: async (eventName: string, onCB: CallBack) => {
+        res = isPromise(res) ? await res : res;
+        responseObject = convertResponse(responseObject, res);
         let returnValue;
         if (eventName === 'data') {
-          returnValue = res;
+          returnValue = isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody : res;
         } else if (eventName === 'response') {
           returnValue = responseObject;
         } else {
@@ -66,7 +69,11 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       end: () => { },
     };
     if (cb) {
-      setTimeout(() => cb(finalResponse), 0);
+      setTimeout(async () => {
+        res = isPromise(res) ? await res : res;
+        responseObject = convertResponse(responseObject, res);
+        cb({ ...finalResponse, ...responseObject });
+      }, 0);
     }
     return finalResponse;
   } catch (e) {
@@ -105,4 +112,23 @@ function parseQuery(queryString?: string) {
 function getHeaders(originalHeaders?: OutgoingHttpHeaders) {
   const initialHeaders = originalHeaders || {};
   return Object.keys(initialHeaders).reduce((prev, cur) => ({ ...prev, [cur]: initialHeaders[cur]?.toString() }), {});
+}
+
+function isPromise(obj: any) {
+  return obj instanceof Promise;
+}
+
+function convertResponse<T>(originalResponse: ResponseObject, response: NetmockResponseType<T>) {
+  if (isInstanceOfNetmockResponse(response)){
+    return {
+      ...originalResponse,
+      ...(response.getResponseParams()),
+      data: response.stringifyBody(),
+    };
+  } else {
+    return {
+      ...originalResponse,
+      data: response,
+    };
+  }
 }
