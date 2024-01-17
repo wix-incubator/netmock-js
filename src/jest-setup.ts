@@ -20,8 +20,6 @@ jest.doMock('http', () => ({
 beforeEach(() => {
   require('isomorphic-fetch');
   const { configure } = require('./settings');
-  // const { overrideFetch } = require('./overrideFetch');
-  // overrideFetch();
   configure({ allowRealNetwork: false });
 });
 

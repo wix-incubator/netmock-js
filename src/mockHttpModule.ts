@@ -13,11 +13,9 @@ import {
 
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any }, cb: CallBack, isHttpsRequest: boolean) {
   try {
-    console.log(`BLBBL config: ${JSON.stringify(request)}`);
     const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
     const func = originalModule.request;
     const url = decodeURI(getUrlForHttp(request));
-    console.log(`url: ${url}`);
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
     if (!mockedEndpoint) {
@@ -26,7 +24,6 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       }
       let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
       const mockedMethods = findMockedMethodForHttp(request);
-      console.log(`mockedMethods: ${mockedMethods}`);
       if (mockedMethods.length > 0) {
         message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
       }
@@ -44,30 +41,47 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       // @ts-ignore
       rawRequest: request, query, params, headers, body,
     }, { callCount: metadata?.calls.length });
-    // if (!isInstanceOfNetmockResponse(res)) {
-    //   res = reply(res);
-    // }
-    setTimeout(() => cb({
+    const responseObject = {
       headers: {},
       location: 'BLA',
       data: res,
       statusCode: 200,
+    };
+    setTimeout(() => cb({
+      ...responseObject,
       on: (eventName: string, onCB: CallBack) => {
         console.log(`eventName: ${eventName}`);
-        if (eventName === 'data'){
+        if (eventName === 'data') {
           onCB(res);
           return res;
         }
-        if (!['aborted', 'error'].includes(eventName)){
+        if (!['aborted', 'error'].includes(eventName)) {
           onCB(null);
           return res;
         }
       },
-      destroy: () => {},
+      destroy: (onCb: any) => { onCb(null); },
     }), 0);
     return {
-      on: (...args: any[]) => { console.log(`on args: ${args}`); },
-      destroy: (...args: any[]) => { console.log(`destroy args: ${args}`); },
+      // on: (onCb: any) => { console.log(`on args: ${onCb}`); },
+      on: (eventName: string, onCB: CallBack) => {
+        console.log(`eventName2: ${eventName}`);
+        if (['response'].includes(eventName)) {
+          onCB({
+            ...responseObject,
+            once: (...args: any[]) => console.log(`args: ${args}`),
+            pipe: (...args: any[]) => console.log(`args: ${args}`),
+          });
+          return res;
+        }
+        if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
+          onCB({
+            emit: (...args: any[]) => console.log(`args: ${args}`),
+          });
+          return res;
+        }
+      },
+      destroy: (onCb: any) => { console.log(`destroy args: ${onCb}`); },
       end: (...args: any[]) => { console.log(`destroy args: ${args}`); },
       location: 'BLA',
       data: res,

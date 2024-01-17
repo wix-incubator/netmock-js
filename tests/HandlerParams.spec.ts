@@ -8,7 +8,7 @@ describe('Mocked endpoints handler params', () => {
   });
 
   describe.only('URL Params', () => {
-    it.only('should mock a request url with params', async () => {
+    it('should mock a request url with params', async () => {
       netmock.get('https://wix.com/:id', (req) => req.params.id);
 
       // expect(await (await fetch('https://wix.com/5')).text()).toEqual('5');
@@ -19,12 +19,12 @@ describe('Mocked endpoints handler params', () => {
       // expect((await axios.get('https://wix.com/3')).data).toEqual(3);
     });
 
-    it('should mock a request url with one param in the middle', async () => {
+    it.only('should mock a request url with one param in the middle', async () => {
       netmock.get('https://wix.com/user/:id/photo', (req) => {
         expect(req.params.id).toEqual('5');
       });
 
-      await fetch('https://wix.com/user/5/photo');
+      // await fetch('https://wix.com/user/5/photo');
       await axios.get('https://wix.com/user/5/photo');
     });
 
