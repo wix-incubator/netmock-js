@@ -21,7 +21,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
     if (!mockedEndpoint) {
-      if (isRealNetworkAllowed(url) || true) {
+      if (isRealNetworkAllowed(url) || true) { // TODO remove true
         return func(request, cb);
       }
       let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
@@ -40,38 +40,57 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
 
     const metadata = getMockedEndpointMetadata(method, url);
 
-    let res = mockedEndpoint.handler({
+    const res = mockedEndpoint.handler({
       // @ts-ignore
       rawRequest: request, query, params, headers, body,
     }, { callCount: metadata?.calls.length });
-    console.log(`res0: ${res}`);
-    if (!isInstanceOfNetmockResponse(res)) {
-      res = reply(res);
-    }
-    console.log(`res1: ${JSON.stringify(res)}`);
-    const stringifyBody = res.stringifyBody();
-    console.log(`stringifyBody: ${stringifyBody}`);
-    const responseParams = res.getResponseParams();
-    console.log(`responseParams: ${JSON.stringify(responseParams)}`)
-    const response = new global.Response(stringifyBody, responseParams);
-    console.log(`response: ${JSON.stringify(response)}`);
-    cb(response);
-    //
-    // const stringifyBody = res.stringifyBody();
-    // console.log(`stringifyBody: ${stringifyBody}`)
-    // const responseParams = res.getResponseParams();
-    // console.log(`responseParams: ${responseParams}`);
-    // const response = new global.Response(stringifyBody, responseParams);
-    // console.log(`response: ${JSON.stringify(response)}`);
-    // if (responseParams.delay) {
-    //   setTimeout(() => cb(response), responseParams.delay);
-    // } else {
-    //   cb(response);
+    // if (!isInstanceOfNetmockResponse(res)) {
+    //   res = reply(res);
     // }
-    //
-    // cb(res);
-    // return null;
+    setTimeout(() => cb({
+      headers: {},
+      location: 'BLA',
+      data: res,
+      statusCode: 200,
+      on: (eventName: string, onCB: CallBack) => {
+        console.log(`eventName: ${eventName}`);
+        if (eventName === 'data'){
+          onCB(res);
+          return res;
+        }
+        if (!['aborted', 'error'].includes(eventName)){
+          onCB(null);
+          return res;
+        }
+      },
+      destroy: () => {},
+    }), 0);
+    return {
+      on: (...args: any[]) => { console.log(`on args: ${args}`); },
+      destroy: (...args: any[]) => { console.log(`destroy args: ${args}`); },
+      end: (...args: any[]) => { console.log(`destroy args: ${args}`); },
+      location: 'BLA',
+      data: res,
+      statusCode: 200,
+    };
   } catch (e) {
+    console.log(`e: ${e}`);
     return Promise.reject(e);
   }
+}
+
+function stringifyWithOneLevel(obj: any) {
+  const seen = new WeakSet();
+
+  function replacer(key: any, value: any) {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular Reference]';
+      }
+      seen.add(value);
+    }
+    return value;
+  }
+
+  return JSON.stringify(obj, replacer);
 }
