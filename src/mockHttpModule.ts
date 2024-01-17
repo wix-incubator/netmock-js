@@ -11,7 +11,7 @@ import {
   isInstanceOfNetmockResponse, reply,
 } from './NetmockResponse';
 
-export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any }, cb: CallBack, isHttpsRequest: boolean) {
+export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any }, cb?: CallBack, isHttpsRequest?: boolean) {
   try {
     const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
     const func = originalModule.request;
@@ -40,20 +40,25 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
     const res = mockedEndpoint.handler({
       // @ts-ignore
       rawRequest: request, query, params, headers, body,
-    }, { callCount: metadata?.calls.length });
+    }, { callCount: metadata?.calls.length }) || '';
     const responseObject = {
       headers: {},
       location: 'BLA',
       data: res,
       statusCode: 200,
+      once: (...args: any[]) => console.log(`args once: ${args}`),
+      pipe: () => res,
     };
-    setTimeout(() => cb({
+    const finalResponse = {
       ...responseObject,
       on: (eventName: string, onCB: CallBack) => {
         console.log(`eventName: ${eventName}`);
         if (eventName === 'data') {
           onCB(res);
           return res;
+        } if (eventName === 'response') {
+          onCB(responseObject);
+          return responseObject;
         }
         if (!['aborted', 'error'].includes(eventName)) {
           onCB(null);
@@ -61,22 +66,21 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
         }
       },
       destroy: (onCb: any) => { onCb(null); },
-    }), 0);
-    return {
+    };
+    if (cb) {
+      setTimeout(() => cb(finalResponse), 0);
+    }
+    return cb ? {
       // on: (onCb: any) => { console.log(`on args: ${onCb}`); },
       on: (eventName: string, onCB: CallBack) => {
         console.log(`eventName2: ${eventName}`);
         if (['response'].includes(eventName)) {
-          onCB({
-            ...responseObject,
-            once: (...args: any[]) => console.log(`args: ${args}`),
-            pipe: (...args: any[]) => console.log(`args: ${args}`),
-          });
+          onCB(responseObject);
           return res;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
           onCB({
-            emit: (...args: any[]) => console.log(`args: ${args}`),
+            emit: (...args: any[]) => console.log(`args emit: ${args}`),
           });
           return res;
         }
@@ -86,7 +90,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       location: 'BLA',
       data: res,
       statusCode: 200,
-    };
+    } : finalResponse;
   } catch (e) {
     console.log(`e: ${e}`);
     return Promise.reject(e);
