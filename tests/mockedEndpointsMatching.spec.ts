@@ -8,10 +8,10 @@ describe('Mocked Endpoints Match Tests', () => {
     netmock = require('netmock-js').netmock;
   });
 
-  it('should print a hint on suspected wrong mocked method', async () => {
+  it.only('should print a hint on suspected wrong mocked method', async () => {
     const resMissFetch = () => fetch('https://wix.com', { method: 'post' });
     const resMissAxios = () => axios.post('https://wix.com');
-    await expect(resMissFetch).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com'));
+    await expect(resMissFetch).rejects.toThrowError(new Error('request to https://wix.com/ failed, reason: Endpoint not mocked: POST https://wix.com/'));
     await expect(resMissAxios).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com/'));
     netmock.get('https://wix.com', () => 'Mocked Text');
     await expect(resMissFetch).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com\nThe request is of type POST but netmock could only find mocks for GET'));

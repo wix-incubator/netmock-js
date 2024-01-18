@@ -4,7 +4,7 @@ import {
 } from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadata } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
-import { Headers, NetmockResponseType } from './types';
+import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
@@ -24,7 +24,16 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
         message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
       }
 
-      throw getErrorWithCorrectStack(message, captureStack(func));
+      const err = getErrorWithCorrectStack(message, captureStack(func));
+      return {
+        on: (eventName: string, onCB: CallBack) => {
+          if (eventName === 'error') {
+            onCB(err);
+            return err;
+          }
+          return { emit: () => {} };
+        },
+      };
     }
     const headers = getHeaders(request.headers);
     const query = parseQuery(request.query || request.search);
