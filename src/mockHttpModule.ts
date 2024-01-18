@@ -4,7 +4,7 @@ import {
 } from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadata } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
-import { NetmockResponseType } from './types';
+import { Headers, NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
@@ -57,11 +57,11 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
         if (eventName === 'data') {
           returnValue = getResStr(res);
         } else if (eventName === 'response') {
+          await wait(getDelay(res));
           returnValue = responseObject;
         } else {
           returnValue = { emit: () => {} };
         }
-        await wait(getDelay(res));
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
           onCB(returnValue);
           return returnValue;
@@ -121,19 +121,23 @@ function isPromise(obj: any) {
 }
 
 function convertResponse<T>(originalResponse: ResponseObject, response: NetmockResponseType<T>) {
+  let finalRes;
   if (isInstanceOfNetmockResponse(response)) {
     const netmockRes = response.getResponseParams();
-    return {
+    finalRes = {
       ...originalResponse,
       statusCode: netmockRes.status,
+      statusMessage: netmockRes.statusText,
       ...(response.getResponseParams()),
       data: response.stringifyBody(),
     };
+  } else {
+    finalRes = {
+      ...originalResponse,
+      data: response,
+    };
   }
-  return {
-    ...originalResponse,
-    data: response,
-  };
+  return finalRes;
 }
 
 function getResStr(res: any) {
