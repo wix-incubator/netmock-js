@@ -45,9 +45,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       location: 'BLA',
       statusCode: 200,
       once: () => {},
-      pipe: () => {
-        return getResStr(res)
-      },
+      pipe: () => getResStr(res),
     };
     const finalResponse = {
       ...responseObject,
@@ -63,8 +61,8 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
         } else {
           returnValue = { emit: () => {} };
         }
+        await wait(getDelay(res));
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
-          console.log(`returnValue: ${JSON.stringify(returnValue)}`);
           onCB(returnValue);
           return returnValue;
         }
@@ -77,7 +75,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
         res = isPromise(res) ? await res : res;
         responseObject = convertResponse(responseObject, res);
         cb({ ...finalResponse, ...responseObject });
-      }, 0);
+      }, getDelay(res));
     }
     return finalResponse;
   } catch (e) {
@@ -140,4 +138,16 @@ function convertResponse<T>(originalResponse: ResponseObject, response: NetmockR
 
 function getResStr(res: any) {
   return isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody() : res;
+}
+
+function getDelay(res: any) {
+  return isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<any>).getResponseParams().delay : 0;
+}
+
+function wait(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null);
+    }, time);
+  });
 }
