@@ -121,23 +121,20 @@ function isPromise(obj: any) {
 }
 
 function convertResponse<T>(originalResponse: ResponseObject, response: NetmockResponseType<T>) {
-  let finalRes;
   if (isInstanceOfNetmockResponse(response)) {
     const netmockRes = response.getResponseParams();
-    finalRes = {
+    return {
       ...originalResponse,
       statusCode: netmockRes.status,
       statusMessage: netmockRes.statusText,
       ...(response.getResponseParams()),
       data: response.stringifyBody(),
     };
-  } else {
-    finalRes = {
-      ...originalResponse,
-      data: response,
-    };
   }
-  return finalRes;
+  return {
+    ...originalResponse,
+    data: response,
+  };
 }
 
 function getResStr(res: any) {
