@@ -21,6 +21,7 @@ export function reset() {
 
 export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   const key = getMockedEndpointKey(url);
+  console.log(`global.__netmockMockedEndpoints: ${JSON.stringify(global.__netmockMockedEndpoints[method][key]?.metadata)}`)
   return global.__netmockMockedEndpoints[method][key]?.metadata;
 }
 
