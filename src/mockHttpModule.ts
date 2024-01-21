@@ -8,8 +8,13 @@ import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
+  const initialResponseObject = {
+    headers: {},
+    location: 'BLA',
+  };
   try {
     const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
+    const isAxios = request.headers?.['User-Agent']?.toString().includes('axios'); // TRY to remove isAxios.
     const func = originalModule.request;
     const url = decodeURI(getUrlForHttp(request));
     const method = getRequestMethodForHttp(request);
@@ -26,12 +31,30 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
 
       const err = getErrorWithCorrectStack(message, captureStack(func));
       return {
+        ...initialResponseObject,
+        statusCode: 500,
         on: (eventName: string, onCB: CallBack) => {
-          if (eventName === 'error') {
+          if (['error', 'abort', 'aborted'].includes(eventName) && !isAxios) {
             onCB(err);
             return err;
           }
-          return { emit: () => {} };
+          return {};
+        },
+        end: () => {
+          if (cb) {
+            cb({
+              ...initialResponseObject,
+              statusCode: 500,
+              cause: err,
+              on: (eventName: string, endCallback: CallBack) => {
+                if (['error', 'end'].includes(eventName)) {
+                  endCallback(err);
+                  return err;
+                }
+              },
+              destroy: () => {},
+            });
+          }
         },
       };
     }
@@ -50,10 +73,12 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       res = JSON.stringify(res);
     }
     let responseObject: ResponseObject = {
-      headers: {},
-      location: 'BLA',
+      ...initialResponseObject,
       statusCode: 200,
       once: () => {},
+      write: (text: string) => {
+        res = text;
+      },
       pipe: () => getResStr(res),
     };
     const finalResponse = {
@@ -69,7 +94,7 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
           await wait(getDelay(res));
           returnValue = responseObject;
         } else {
-          returnValue = { emit: () => {} };
+          returnValue = null;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
           onCB(returnValue);
