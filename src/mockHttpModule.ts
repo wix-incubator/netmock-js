@@ -7,7 +7,10 @@ import { isRealNetworkAllowed } from './settings';
 import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
+let i = 0;
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
+  const curIndex = i;
+  i += 1;
   const initialResponseObject = {
     headers: {},
     location: 'BLA',
@@ -62,7 +65,6 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
     const query = parseQuery(request.query || request.search);
     const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
     const body = request.body;
-
     const metadata = getMockedEndpointMetadata(method, url);
 
     let res = mockedEndpoint.handler({
@@ -77,7 +79,6 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       statusCode: 200,
       once: () => {},
       write: (text: string) => {
-        res = text;
       },
       pipe: () => getResStr(res),
     };

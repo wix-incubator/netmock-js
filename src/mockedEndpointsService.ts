@@ -21,7 +21,7 @@ export function reset() {
 
 export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   const key = getMockedEndpointKey(url);
-  console.log(`global.__netmockMockedEndpoints: ${JSON.stringify(global.__netmockMockedEndpoints[method][key]?.metadata)}`)
+  console.lsog(`getMockedEndpointMetadata. key: ${key}. method: ${method}. global.__netmockMockedEndpoints[method][key]?.metadata: ${global.__netmockMockedEndpoints[method]}`)
   return global.__netmockMockedEndpoints[method][key]?.metadata;
 }
 
@@ -46,6 +46,7 @@ export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: 
   const key = getMockedEndpointKey(url);
   const urlRegex = url instanceof RegExp ? url : convertUrlToRegex(url);
   const metadata = getEmptyMetadata();
+  console.log(`initialization. method: ${method}. key: ${key}`);
   global.__netmockMockedEndpoints[method][key] = {
     key,
     handler: getHandlerMetadataCollectorWrapper(handler, metadata),
