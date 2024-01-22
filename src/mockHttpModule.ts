@@ -9,13 +9,14 @@ import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 let i = 0;
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
-  const curIndex = i;
+  let calledHandler = false;
   i += 1;
   const initialResponseObject = {
     headers: {},
     location: 'BLA',
   };
   try {
+    console.log(`request: ${JSON.stringify(request)}`)
     const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
     const isAxios = request.headers?.['User-Agent']?.toString().includes('axios'); // TRY to remove isAxios.
     const func = originalModule.request;
@@ -64,35 +65,35 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
     const headers = getHeaders(request.headers);
     const query = parseQuery(request.query || request.search);
     const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
-    const body = request.body;
     const metadata = getMockedEndpointMetadata(method, url);
-
-    let res = mockedEndpoint.handler({
-      // @ts-ignore
-      rawRequest: new Request(request), query, params, headers, body,
-    }, { callCount: metadata?.calls.length }) || '';
-    if (typeof res === 'object' && !isPromise(res) && !isInstanceOfNetmockResponse(res)) {
-      res = JSON.stringify(res);
-    }
+    let body = '';
+    let res: any;
     let responseObject: ResponseObject = {
       ...initialResponseObject,
       statusCode: 200,
       once: () => {},
-      write: (text: string) => {
+      write: (text: Buffer) => {
+        body = text.toString('utf8');
       },
       pipe: () => getResStr(res),
     };
     const finalResponse = {
       ...responseObject,
       on: async (eventName: string, onCB: CallBack) => {
-        console.log(`eventName: ${eventName}`);
-        res = isPromise(res) ? await res : res;
-        responseObject = convertResponse(responseObject, res);
+        if (!calledHandler){
+          await wait(0);
+          res = mockedEndpoint.handler({
+            // @ts-ignore
+            rawRequest: new Request(request), query, params, headers, body,
+          }, { callCount: metadata?.calls.length }) || '';
+          res = isPromise(res) ? await res : res;
+          responseObject = convertResponse(responseObject, res);
+          calledHandler = true;
+        }
         let returnValue;
         if (eventName === 'data') {
           returnValue = getResStr(res);
         } else if (eventName === 'response') {
-          await wait(getDelay(res));
           returnValue = responseObject;
         } else {
           returnValue = null;
@@ -105,10 +106,17 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       destroy: (onCb: any) => { onCb(null); },
       end: () => { },
     };
-    if (cb) {
+    if (cb && !calledHandler) {
       setTimeout(async () => {
-        res = isPromise(res) ? await res : res;
-        responseObject = convertResponse(responseObject, res);
+        if (!calledHandler){
+          res = mockedEndpoint.handler({
+            // @ts-ignore
+            rawRequest: new Request(request), query, params, headers, body,
+          }, { callCount: metadata?.calls.length }) || '';
+          res = isPromise(res) ? await res : res;
+          responseObject = convertResponse(responseObject, res);
+          calledHandler = true;
+        }
         cb({ ...finalResponse, ...responseObject });
       }, getDelay(res));
     }
