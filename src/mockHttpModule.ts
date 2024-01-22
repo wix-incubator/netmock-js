@@ -9,14 +9,12 @@ import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 let i = 0;
 export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
-  let calledHandler = false;
   i += 1;
   const initialResponseObject = {
     headers: {},
     location: 'BLA',
   };
   try {
-    console.log(`request: ${JSON.stringify(request)}`)
     const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
     const isAxios = request.headers?.['User-Agent']?.toString().includes('axios'); // TRY to remove isAxios.
     const func = originalModule.request;
@@ -68,37 +66,59 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
     const metadata = getMockedEndpointMetadata(method, url);
     let body = '';
     let res: any;
+    let resForPipe: any;
+    const waitForRes = async () => {
+      while (res === undefined) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
+    };
     let responseObject: ResponseObject = {
       ...initialResponseObject,
       statusCode: 200,
-      once: () => {},
+      once: () => { },
       write: (text: Buffer) => {
         body = text.toString('utf8');
       },
-      pipe: () => getResStr(res),
+      pipe: async () => {
+        await waitForRes();
+        return resForPipe;
+      },
     };
+    setTimeout(async () => {
+      const response = mockedEndpoint.handler({
+        // @ts-ignore
+        rawRequest: new Request(request), query, params, headers, body,
+      }, { callCount: metadata?.calls.length }) || '';
+      await wait(getDelay(response));
+      res = isPromise(response) ? await response : response;
+      console.log(`YOY: res: ${JSON.stringify(res)}`);
+      responseObject = convertResponse(responseObject, res);
+      console.log(`YOY: responseObject: ${JSON.stringify(responseObject)}`);
+      console.log(`YOY: cb: ${cb}`);
+      if (cb) {
+        console.log(`calling cb: ${stringifyWithOneLevel({ ...finalResponse, ...responseObject })}`);
+        cb({ ...finalResponse, ...responseObject });
+      }
+    }, 0);
     const finalResponse = {
       ...responseObject,
       on: async (eventName: string, onCB: CallBack) => {
-        if (!calledHandler){
-          await wait(0);
-          res = mockedEndpoint.handler({
-            // @ts-ignore
-            rawRequest: new Request(request), query, params, headers, body,
-          }, { callCount: metadata?.calls.length }) || '';
-          res = isPromise(res) ? await res : res;
-          responseObject = convertResponse(responseObject, res);
-          calledHandler = true;
-        }
+        console.log(`eventName: ${eventName}`);
         let returnValue;
         if (eventName === 'data') {
           returnValue = getResStr(res);
+          resForPipe = returnValue;
         } else if (eventName === 'response') {
+          await waitForRes();
           returnValue = responseObject;
+          resForPipe = returnValue;
         } else {
           returnValue = null;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
+          console.log(`calling onCB for: ${eventName}`);
+          console.log(`calling onCB for returnValue: ${stringifyWithOneLevel(returnValue)}`);
           onCB(returnValue);
           return returnValue;
         }
@@ -106,20 +126,6 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       destroy: (onCb: any) => { onCb(null); },
       end: () => { },
     };
-    if (cb && !calledHandler) {
-      setTimeout(async () => {
-        if (!calledHandler){
-          res = mockedEndpoint.handler({
-            // @ts-ignore
-            rawRequest: new Request(request), query, params, headers, body,
-          }, { callCount: metadata?.calls.length }) || '';
-          res = isPromise(res) ? await res : res;
-          responseObject = convertResponse(responseObject, res);
-          calledHandler = true;
-        }
-        cb({ ...finalResponse, ...responseObject });
-      }, getDelay(res));
-    }
     return finalResponse;
   } catch (e) {
     return Promise.reject(e);

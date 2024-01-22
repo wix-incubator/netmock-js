@@ -87,7 +87,6 @@ export function findMockedMethodForHttp(request: ClientRequestArgs) {
 
 function getHandlerMetadataCollectorWrapper(handler: MockedEndpointHandler, metadata: MockedEndpointMetaData): MockedEndpointHandler {
   return (...params) => {
-    console.log(`getHandlerMetadataCollectorWrapper: ${JSON.stringify(params)}`)
     metadata.calls.push(params);
     return handler(...params);
   };

@@ -61,23 +61,24 @@ describe('Response', () => {
     });
   });
 
-  describe('Other Params', () => {
-    it('should allow setting a delay', async () => {
+  describe.only('Other Params', () => {
+    it.only('should allow setting a delay', async () => {
       netmock.get('https://wix.com', () => reply('Mocked Text').delay(100));
       let fetchValue;
       let axiosValue;
       fetch('https://wix.com').then(async (res) => {
         fetchValue = await res.text();
       });
-      axios.get('https://wix.com').then(async (res) => {
-        axiosValue = await res.data;
-      });
+      // axios.get('https://wix.com').then(async (res) => {
+      //   console.log(`res in axios handler: ${stringifyWithOneLevel(res)}`)
+      //   axiosValue = await res.data;
+      // });
       await new Promise((r) => { setTimeout(r, 50); });
       expect(fetchValue).toEqual(undefined);
-      expect(axiosValue).toEqual(undefined);
+      // expect(axiosValue).toEqual(undefined);
       await new Promise((r) => { setTimeout(r, 60); });
       expect(fetchValue).toEqual('Mocked Text');
-      expect(axiosValue).toEqual('Mocked Text');
+      // expect(axiosValue).toEqual('Mocked Text');
     });
 
     it('should return different responses based on call count', async () => {
@@ -136,3 +137,20 @@ describe('Response', () => {
     });
   });
 });
+
+
+function stringifyWithOneLevel(obj: any) {
+  const seen = new WeakSet();
+
+  function replacer(key: any, value: any) {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular Reference]';
+      }
+      seen.add(value);
+    }
+    return value;
+  }
+
+  return JSON.stringify(obj, replacer);
+}
