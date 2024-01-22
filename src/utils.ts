@@ -1,5 +1,4 @@
 import { Method } from './types';
-import {ClientRequestArgs} from "http";
 
 export function getUrl(input: RequestInfo): string {
   if (typeof input === 'string') { // If input is a string, it is the url
@@ -9,8 +8,27 @@ export function getUrl(input: RequestInfo): string {
   return input.url;
 }
 
-export function getUrlForHttp(request: ClientRequestArgs): string {
-  return (request.protocol ?? 'http:').concat('//').concat(request.hostname ?? '').concat(request.path ?? '');
+export function getHeadersForHttp(request: HttpRequest) {
+  const initialHeaders = request.headers || {};
+  return Object.keys(initialHeaders).reduce((prev, cur) => ({ ...prev, [cur]: initialHeaders[cur]?.toString() }), {});
+}
+
+export function parseQueryForHttp(request: HttpRequest) {
+  const queryString = request.query || request.search;
+  if (!queryString) {
+    return '';
+  }
+  const query: { [key: string]: string } = {};
+  const pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+  pairs.forEach((item) => {
+    const pair = item.split('=');
+    query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+  });
+  return query;
+}
+
+export function getUrlForHttp(request: HttpRequest): string {
+  return decodeURI((request.protocol ?? 'http:').concat('//').concat(request.hostname ?? '').concat(request.path ?? ''));
 }
 export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   if (input instanceof RegExp) {
@@ -21,12 +39,11 @@ export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
 }
 
-export function getMockedEndpointKeyForHttp(request: ClientRequestArgs): string {
+export function getMockedEndpointKeyForHttp(request: HttpRequest): string {
   const parsedUrl = new URL(getUrlForHttp(request));
   const cleanUrl = parsedUrl.origin + parsedUrl.pathname;
   return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
 }
-
 
 export function getRequestMethod(input: RequestInfo, init?: RequestInit): Method {
   if (typeof input === 'object') { // input is a Request instance
@@ -35,7 +52,7 @@ export function getRequestMethod(input: RequestInfo, init?: RequestInit): Method
   return init?.method ? init.method.toLowerCase() as Method : 'get';
 }
 
-export function getRequestMethodForHttp(request: ClientRequestArgs): Method {
+export function getRequestMethodForHttp(request: HttpRequest): Method {
   return request?.method ? request.method.toLowerCase() as Method : 'get';
 }
 

@@ -1,71 +1,77 @@
-import { ClientRequestArgs, OutgoingHttpHeaders } from 'http';
 import {
-  captureStack, getErrorWithCorrectStack, getRequestMethodForHttp, getUrlForHttp,
+  captureStack, getErrorWithCorrectStack, getHeadersForHttp, getRequestMethodForHttp, getUrlForHttp, parseQueryForHttp,
 } from './utils';
 import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadata } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
 import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
-let i = 0;
-export function httpRequest(request: ClientRequestArgs & { query?: string, body?: any, search?: string }, cb?: CallBack, isHttpsRequest?: boolean) {
-  i += 1;
+function handleNotMockedResponse(request: HttpRequest, cb?: CallBack, isHttpsRequest?: boolean) {
+  const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
+  const func = originalModule.request;
+  const url = getUrlForHttp(request);
+  const method = getRequestMethodForHttp(request);
+  const initialResponseObject = {
+    headers: {},
+    location: 'BLA',
+  };
+  if (isRealNetworkAllowed(url)) {
+    return func(request, cb);
+  }
+  let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
+  const mockedMethods = findMockedMethodForHttp(request);
+  if (mockedMethods.length > 0) {
+    message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
+  }
+
+  const err = getErrorWithCorrectStack(message, captureStack(func));
+  return {
+    ...initialResponseObject,
+    statusCode: 500,
+    on: (eventName: string, onCB: CallBack) => {
+      if (['error', 'abort', 'aborted'].includes(eventName) && !cb) {
+        onCB(err);
+        return err;
+      }
+      return null;
+    },
+    end: () => {
+      if (cb) {
+        cb({
+          ...initialResponseObject,
+          statusCode: 500,
+          cause: err,
+          on: (eventName: string, endCallback: CallBack) => {
+            if (['error', 'end'].includes(eventName)) {
+              endCallback(err);
+              return err;
+            }
+            return null;
+          },
+          destroy: () => {},
+        });
+      }
+    },
+  };
+}
+export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?: boolean) {
   const initialResponseObject = {
     headers: {},
     location: 'BLA',
   };
   try {
-    const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
-    const isAxios = request.headers?.['User-Agent']?.toString().includes('axios'); // TRY to remove isAxios.
-    const func = originalModule.request;
-    const url = decodeURI(getUrlForHttp(request));
+    const url = getUrlForHttp(request);
     const method = getRequestMethodForHttp(request);
     const mockedEndpoint = findMockedEndpointForHttp(request, method);
     if (!mockedEndpoint) {
-      if (isRealNetworkAllowed(url)) {
-        return func(request, cb);
-      }
-      let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
-      const mockedMethods = findMockedMethodForHttp(request);
-      if (mockedMethods.length > 0) {
-        message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
-      }
-
-      const err = getErrorWithCorrectStack(message, captureStack(func));
-      return {
-        ...initialResponseObject,
-        statusCode: 500,
-        on: (eventName: string, onCB: CallBack) => {
-          if (['error', 'abort', 'aborted'].includes(eventName) && !isAxios) {
-            onCB(err);
-            return err;
-          }
-          return {};
-        },
-        end: () => {
-          if (cb) {
-            cb({
-              ...initialResponseObject,
-              statusCode: 500,
-              cause: err,
-              on: (eventName: string, endCallback: CallBack) => {
-                if (['error', 'end'].includes(eventName)) {
-                  endCallback(err);
-                  return err;
-                }
-              },
-              destroy: () => {},
-            });
-          }
-        },
-      };
+      return handleNotMockedResponse(request, cb, isHttpsRequest);
     }
-    const headers = getHeaders(request.headers);
-    const query = parseQuery(request.query || request.search);
+    const headers = getHeadersForHttp(request);
+    const query = parseQueryForHttp(request);
     const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
     const metadata = getMockedEndpointMetadata(method, url);
     let body = '';
-    let res: any;
+    let res: HttpResponse;
     const waitForRes = async () => {
       while (res === undefined) {
         // eslint-disable-next-line no-await-in-loop
@@ -79,33 +85,26 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       write: (text: Buffer) => {
         body = text.toString('utf8');
       },
-      pipe: () => {
-        console.log(`res in pipe: ${res}`);
-        return getResStr(res);
-      },
+      pipe: () => getResStr(res),
     };
     setTimeout(async () => {
-      let response = mockedEndpoint.handler({
+      let handlerResponse = mockedEndpoint.handler({
         // @ts-ignore
         rawRequest: new Request(request), query, params, headers, body,
       }, { callCount: metadata?.calls.length }) || '';
-      if (typeof response === 'object' && !isPromise(response) && !isInstanceOfNetmockResponse(response)) {
-        response = JSON.stringify(response);
+      if (typeof handlerResponse === 'object' && !isPromise(handlerResponse) && !isInstanceOfNetmockResponse(handlerResponse)) {
+        handlerResponse = JSON.stringify(handlerResponse);
       }
-      await wait(getDelay(response));
-      res = isPromise(response) ? await response : response;
+      await wait(getDelay(handlerResponse));
+      res = isPromise(handlerResponse) ? await handlerResponse : handlerResponse;
       responseObject = convertResponse(responseObject, res);
-      console.log(`YOY: responseObject: ${JSON.stringify(responseObject)}`);
-      console.log(`YOY: cb: ${cb}`);
       if (cb) {
-        console.log(`calling cb: ${stringifyWithOneLevel({ ...finalResponse, ...responseObject })}`);
-        cb({ ...finalResponse, ...responseObject });
+        cb({ ...returnObject, ...responseObject });
       }
     }, 0);
-    const finalResponse = {
+    const returnObject = {
       ...responseObject,
       on: async (eventName: string, onCB: CallBack) => {
-        console.log(`eventName: ${eventName}`);
         let returnValue;
         if (eventName === 'data') {
           returnValue = getResStr(res);
@@ -116,67 +115,33 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
           returnValue = null;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
-          console.log(`calling onCB for: ${eventName}`);
-          console.log(`calling onCB for returnValue: ${stringifyWithOneLevel(returnValue)}`);
           onCB(returnValue);
           return returnValue;
         }
+        return null;
       },
       destroy: (onCb: any) => { onCb(null); },
       end: () => { },
     };
-    return finalResponse;
+    return returnObject;
   } catch (e) {
     return Promise.reject(e);
   }
 }
-
-function stringifyWithOneLevel(obj: any) {
-  const seen = new WeakSet();
-
-  function replacer(key: any, value: any) {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) {
-        return '[Circular Reference]';
-      }
-      seen.add(value);
-    }
-    return value;
-  }
-
-  return JSON.stringify(obj, replacer);
-}
-
-function parseQuery(queryString?: string) {
-  if (!queryString) {
-    return '';
-  }
-  const query: { [key: string]: string } = {};
-  const pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
-  pairs.forEach((item) => {
-    const pair = item.split('=');
-    query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
-  });
-  return query;
-}
-function getHeaders(originalHeaders?: OutgoingHttpHeaders) {
-  const initialHeaders = originalHeaders || {};
-  return Object.keys(initialHeaders).reduce((prev, cur) => ({ ...prev, [cur]: initialHeaders[cur]?.toString() }), {});
-}
-
 function isPromise(obj: any) {
   return obj instanceof Promise;
 }
 
-function convertResponse<T>(originalResponse: ResponseObject, response: NetmockResponseType<T>) {
+function convertResponse(originalResponse: ResponseObject, response: HttpResponse) {
   if (isInstanceOfNetmockResponse(response)) {
-    const netmockRes = response.getResponseParams();
+    const netmockRes = response as NetmockResponseType<string | object>;
+    const netmockResParams = netmockRes.getResponseParams();
     return {
       ...originalResponse,
-      statusCode: netmockRes.status,
-      statusMessage: netmockRes.statusText,
-      ...(response.getResponseParams()),
-      data: response.stringifyBody(),
+      statusCode: netmockResParams.status,
+      statusMessage: netmockResParams.statusText,
+      ...(netmockRes.getResponseParams()),
+      data: netmockRes.stringifyBody(),
     };
   }
   return {

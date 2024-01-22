@@ -24,3 +24,6 @@ type ResponseObject = {
   write: (text: Buffer) => void,
   pipe: () => Promise<any>,
 };
+
+type HttpRequest = import('http').ClientRequestArgs & { query?: string, body?: any, search?: string };
+type HttpResponse = import('NetmockResponseType').NetmockResponseType<string | object> | string | object;

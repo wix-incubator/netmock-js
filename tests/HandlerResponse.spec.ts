@@ -70,7 +70,6 @@ describe('Response', () => {
         fetchValue = await res.text();
       });
       axios.get('https://wix.com').then(async (res) => {
-        console.log(`res in axios handler: ${stringifyWithOneLevel(res)}`)
         axiosValue = await res.data;
       });
       await new Promise((r) => { setTimeout(r, 50); });

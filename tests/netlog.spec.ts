@@ -51,8 +51,6 @@ describe('Netlog Tests', () => {
     netmock.post('https://www.wix.com/:id/', () => ({}));
     await fetch('https://www.wix.com/123', { method: 'post', body });
     await axios.post('https://www.wix.com/123', body);
-    console.log(`netlog('post', 'https://www.wix.com/:id').getRequest(0): ${JSON.stringify(netlog('post', 'https://www.wix.com/:id').getRequest(0))}`)
-
     expect(netlog('post', 'https://www.wix.com/:id').getRequest(0).body).toEqual(body);
     expect(netlog('post', 'https://www.wix.com/:id').getRequest(1).body).toEqual(body);
   });
