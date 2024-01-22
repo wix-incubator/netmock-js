@@ -6,7 +6,7 @@ import { isRealNetworkAllowed } from './settings';
 import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
-function handleNotMockedResponse(request: HttpRequest, cb?: CallBack, isHttpsRequest?: boolean) {
+function handleNotMockedResponse(request: HttpRequest, requestCallback?: CallBack, isHttpsRequest?: boolean) {
   const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
   const func = originalModule.request;
   const url = getUrlForHttp(request);
@@ -16,7 +16,7 @@ function handleNotMockedResponse(request: HttpRequest, cb?: CallBack, isHttpsReq
     location: 'BLA',
   };
   if (isRealNetworkAllowed(url)) {
-    return func(request, cb);
+    return func(request, requestCallback);
   }
   let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
   const mockedMethods = findMockedMethodForHttp(request);
@@ -28,22 +28,22 @@ function handleNotMockedResponse(request: HttpRequest, cb?: CallBack, isHttpsReq
   return {
     ...initialResponseObject,
     statusCode: 500,
-    on: (eventName: string, onCB: CallBack) => {
-      if (['error', 'abort', 'aborted'].includes(eventName) && !cb) {
-        onCB(err);
+    on: (eventName: string, onCallback: CallBack) => {
+      if (['error', 'abort', 'aborted'].includes(eventName) && !requestCallback) {
+        onCallback(err);
         return err;
       }
       return null;
     },
     end: () => {
-      if (cb) {
-        cb({
+      if (requestCallback) {
+        requestCallback({
           ...initialResponseObject,
           statusCode: 500,
           cause: err,
-          on: (eventName: string, endCallback: CallBack) => {
+          on: (eventName: string, onCallback: CallBack) => {
             if (['error', 'end'].includes(eventName)) {
-              endCallback(err);
+              onCallback(err);
               return err;
             }
             return null;
@@ -104,7 +104,7 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
     }, 0);
     const returnObject = {
       ...responseObject,
-      on: async (eventName: string, onCB: CallBack) => {
+      on: async (eventName: string, onCallback: CallBack) => {
         let returnValue;
         if (eventName === 'data') {
           returnValue = getResStr(res);
@@ -115,12 +115,12 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
           returnValue = null;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
-          onCB(returnValue);
+          onCallback(returnValue);
           return returnValue;
         }
         return null;
       },
-      destroy: (onCb: any) => { onCb(null); },
+      destroy: (destroyCallback: any) => { destroyCallback(null); },
       end: () => { },
     };
     return returnObject;
