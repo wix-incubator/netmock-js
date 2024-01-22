@@ -45,7 +45,7 @@ describe('Netlog Tests', () => {
     expect(() => netlog('get', 'https://www.unmockedUrl.com')).toThrowError('Cannot log unmocked endpoint: get https://www.unmockedUrl.com');
   });
 
-  it.only('should allow logging request body', async () => {
+  it('should allow logging request body', async () => {
     const theBody = { foo: 'fighter' };
     const body = JSON.stringify(theBody);
     netmock.post('https://www.wix.com/:id/', () => ({}));

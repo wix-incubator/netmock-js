@@ -85,10 +85,13 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       },
     };
     setTimeout(async () => {
-      const response = mockedEndpoint.handler({
+      let response = mockedEndpoint.handler({
         // @ts-ignore
         rawRequest: new Request(request), query, params, headers, body,
       }, { callCount: metadata?.calls.length }) || '';
+      if (typeof response === 'object' && !isPromise(response) && !isInstanceOfNetmockResponse(response)) {
+        response = JSON.stringify(response);
+      }
       await wait(getDelay(response));
       res = isPromise(response) ? await response : response;
       responseObject = convertResponse(responseObject, res);
