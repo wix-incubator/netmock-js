@@ -66,7 +66,6 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
     const metadata = getMockedEndpointMetadata(method, url);
     let body = '';
     let res: any;
-    let resForPipe: any;
     const waitForRes = async () => {
       while (res === undefined) {
         // eslint-disable-next-line no-await-in-loop
@@ -80,9 +79,9 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       write: (text: Buffer) => {
         body = text.toString('utf8');
       },
-      pipe: async () => {
-        await waitForRes();
-        return resForPipe;
+      pipe: () => {
+        console.log(`res in pipe: ${res}`);
+        return getResStr(res);
       },
     };
     setTimeout(async () => {
@@ -92,7 +91,6 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
       }, { callCount: metadata?.calls.length }) || '';
       await wait(getDelay(response));
       res = isPromise(response) ? await response : response;
-      console.log(`YOY: res: ${JSON.stringify(res)}`);
       responseObject = convertResponse(responseObject, res);
       console.log(`YOY: responseObject: ${JSON.stringify(responseObject)}`);
       console.log(`YOY: cb: ${cb}`);
@@ -108,11 +106,9 @@ export function httpRequest(request: ClientRequestArgs & { query?: string, body?
         let returnValue;
         if (eventName === 'data') {
           returnValue = getResStr(res);
-          resForPipe = returnValue;
         } else if (eventName === 'response') {
           await waitForRes();
           returnValue = responseObject;
-          resForPipe = returnValue;
         } else {
           returnValue = null;
         }

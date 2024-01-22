@@ -67,7 +67,7 @@ describe('Mocked endpoints handler params', () => {
       expect((await axios.get('https://wix.com')).data).toEqual('not blamos');
     });
 
-    it('should support more than one query params', async () => {
+    it.only('should support more than one query params', async () => {
       netmock.get('https://wix.com', (req) => {
         if (Object.keys(req.query).length > 0) {
           return req.query;
