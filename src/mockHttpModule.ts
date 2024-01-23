@@ -151,7 +151,7 @@ function convertResponse(originalResponse: ResponseObject, response: HttpRespons
 }
 
 function getResBuffer(res: any) {
-  return Buffer.from(isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody() : res.toString());
+  return Buffer.from((isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody() : res.toString()) || '');
 }
 
 function getDelay(res: any) {
