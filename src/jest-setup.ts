@@ -13,7 +13,16 @@ jest.doMock('http', () => ({
 }));
 
 beforeEach(() => {
-  require('isomorphic-fetch');
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  const realFetch = require('node-fetch');
+  // @ts-ignore
+  global.fetch = realFetch;
+  // @ts-ignore
+  global.Response = realFetch.Response;
+  // @ts-ignore
+  global.Headers = realFetch.Headers;
+  // @ts-ignore
+  global.Request = realFetch.Request;
   const { configure } = require('./settings');
   configure({ allowRealNetwork: false });
 });
