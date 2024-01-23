@@ -85,7 +85,7 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
       write: (text: Buffer) => {
         body = text.toString('utf8');
       },
-      pipe: () => getResStr(res),
+      pipe: () => getResBuffer(res),
     };
     setTimeout(async () => {
       let handlerResponse = mockedEndpoint.handler({
@@ -107,7 +107,7 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
       on: async (eventName: string, onCallback: CallBack) => {
         let returnValue;
         if (eventName === 'data') {
-          returnValue = getResStr(res);
+          returnValue = getResBuffer(res);
         } else if (eventName === 'response') {
           await waitForRes();
           returnValue = responseObject;
@@ -150,8 +150,8 @@ function convertResponse(originalResponse: ResponseObject, response: HttpRespons
   };
 }
 
-function getResStr(res: any) {
-  return isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody() : res;
+function getResBuffer(res: any) {
+  return Buffer.from(isInstanceOfNetmockResponse(res) ? (res as NetmockResponseType<string>).stringifyBody() : res.toString());
 }
 
 function getDelay(res: any) {
