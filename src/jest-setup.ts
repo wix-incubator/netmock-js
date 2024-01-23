@@ -13,8 +13,7 @@ jest.doMock('http', () => ({
 }));
 
 beforeEach(() => {
-  // eslint-disable-next-line import/no-extraneous-dependencies
-  const realFetch = require('node-fetch');
+  const realFetch = jest.requireActual('node-fetch');
   // @ts-ignore
   global.fetch = realFetch;
   // @ts-ignore

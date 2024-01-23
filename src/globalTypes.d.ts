@@ -22,7 +22,7 @@ type ResponseObject = {
   statusCode: number,
   once: () => void,
   write: (text: Buffer) => void,
-  pipe: () => Promise<any>,
+  pipe: () => any,
 };
 
 type HttpRequest = import('http').ClientRequestArgs & { query?: string, body?: any, search?: string };
