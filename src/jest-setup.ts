@@ -1,5 +1,6 @@
 import { ClientRequestArgs } from 'http';
 import { httpRequest } from './mockHttpModule';
+import {overrideFetch} from "./overrideFetch";
 
 global.originalHttps = jest.requireActual('https');
 global.originalHttp = jest.requireActual('http');
@@ -13,8 +14,6 @@ jest.doMock('http', () => ({
 }));
 
 beforeEach(() => {
-  const { overrideFetch } = require('./overrideFetch');
-  overrideFetch();
   const realFetch = jest.requireActual('node-fetch');
   // @ts-ignore
   global.fetch = realFetch;
@@ -25,6 +24,8 @@ beforeEach(() => {
   // @ts-ignore
   global.Request = realFetch.Request;
   const { configure } = require('./settings');
+  const { overrideFetch } = require('./overrideFetch');
+  overrideFetch();
   configure({ allowRealNetwork: false });
 });
 

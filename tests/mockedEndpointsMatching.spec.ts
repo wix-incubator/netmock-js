@@ -11,13 +11,13 @@ describe('Mocked Endpoints Match Tests', () => {
   it('should print a hint on suspected wrong mocked method', async () => {
     const resMissFetch = () => fetch('https://wix.com', { method: 'post' });
     const resMissAxios = () => axios.post('https://wix.com');
-    await expect(resMissFetch).rejects.toThrowError(new Error('request to https://wix.com/ failed, reason: Endpoint not mocked: POST https://wix.com/'));
+    await expect(resMissFetch).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com'));
     await expect(resMissAxios).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com/'));
     netmock.get('https://wix.com', () => 'Mocked Text');
-    await expect(resMissFetch).rejects.toThrowError(new Error('request to https://wix.com/ failed, reason: Endpoint not mocked: POST https://wix.com/\nThe request is of type POST but netmock could only find mocks for GET'));
+    await expect(resMissFetch).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com\nThe request is of type POST but netmock could only find mocks for GET'));
     await expect(resMissAxios).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com/\nThe request is of type POST but netmock could only find mocks for GET'));
     netmock.put('https://wix.com', () => 'Mocked Text');
-    await expect(resMissFetch).rejects.toThrowError(new Error('request to https://wix.com/ failed, reason: Endpoint not mocked: POST https://wix.com/\nThe request is of type POST but netmock could only find mocks for GET,PUT'));
+    await expect(resMissFetch).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com\nThe request is of type POST but netmock could only find mocks for GET,PUT'));
     await expect(resMissAxios).rejects.toThrowError(new Error('Endpoint not mocked: POST https://wix.com/\nThe request is of type POST but netmock could only find mocks for GET,PUT'));
   });
 
@@ -26,7 +26,7 @@ describe('Mocked Endpoints Match Tests', () => {
 
     expect(await fetch('https://wix.com/exact/route/to/match')).toBeDefined();
     expect(await axios.get('https://wix.com/exact/route/to/match')).toBeDefined();
-    await expect(fetch('https://wix.com/exact/route/match')).rejects.toThrowError(new Error('request to https://wix.com/exact/route/match failed, reason: Endpoint not mocked: GET https://wix.com/exact/route/match'));
+    await expect(fetch('https://wix.com/exact/route/match')).rejects.toThrowError(new Error('Endpoint not mocked: GET https://wix.com/exact/route/match'));
     await expect(axios.get('https://wix.com/exact/route/match')).rejects.toThrowError(new Error('Endpoint not mocked: GET https://wix.com/exact/route/match'));
   });
 
@@ -36,7 +36,7 @@ describe('Mocked Endpoints Match Tests', () => {
 
     expect(await fetch('https://wix.com/route/with/regexp/match')).toBeDefined();
     expect(await axios.get('https://wix.com/route/with/regexp/match')).toBeDefined();
-    await expect(() => fetch('https://wix.com/regular/route/')).rejects.toThrowError(new Error('request to https://wix.com/regular/route/ failed, reason: Endpoint not mocked: GET https://wix.com/regular/route/'));
+    await expect(() => fetch('https://wix.com/regular/route/')).rejects.toThrowError(new Error('Endpoint not mocked: GET https://wix.com/regular/route/'));
     await expect(() => axios.get('https://wix.com/regular/route/')).rejects.toThrowError(new Error('Endpoint not mocked: GET https://wix.com/regular/route/'));
   });
 
