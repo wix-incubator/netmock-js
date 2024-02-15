@@ -4,14 +4,15 @@
 declare var originalFetch: typeof fetch;
 declare var originalHttps: typeof https;
 declare var originalHttp: typeof http;
-declare type CallBack = (res: any) => void;
-
 declare var __netmockSettings: NetmockSettings;
 declare var __netmockMockedEndpoints: {
   [method in import('./types').Method]: {
     [key: string]: import('./types').MockedEndpoint;
   }
 };
+
+declare type CallBack = (res: any) => void;
+
 type NetmockSettings = {
   allowRealNetwork: boolean | RegExp;
   suppressQueryParamsInUrlWarnings: boolean;

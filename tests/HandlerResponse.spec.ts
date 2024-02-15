@@ -137,7 +137,6 @@ describe('Response', () => {
   });
 });
 
-
 function stringifyWithOneLevel(obj: any) {
   const seen = new WeakSet();
 

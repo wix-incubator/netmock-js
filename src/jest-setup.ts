@@ -1,6 +1,5 @@
 import { ClientRequestArgs } from 'http';
 import { httpRequest } from './mockHttpModule';
-import {overrideFetch} from "./overrideFetch";
 
 global.originalHttps = jest.requireActual('https');
 global.originalHttp = jest.requireActual('http');

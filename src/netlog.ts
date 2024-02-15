@@ -16,8 +16,6 @@ export function netlog(method: Method, url: MockedUrl): NetlogAPI {
 export function netlogApi(metadata: MockedEndpointMetaData): NetlogAPI {
   return {
     callCount: () => metadata.calls.length,
-    getRequest: (index: number) => {
-      return metadata.calls[index][0]
-    },
+    getRequest: (index: number) => metadata.calls[index][0],
   };
 }
