@@ -1,5 +1,5 @@
-// eslint-disable-next-line import/no-cycle
 import { ClientRequestArgs } from 'http';
+// eslint-disable-next-line import/no-cycle
 import { netlogApi } from './netlog';
 import { getSettings } from './settings';
 import type {

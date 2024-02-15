@@ -136,19 +136,3 @@ describe('Response', () => {
     });
   });
 });
-
-function stringifyWithOneLevel(obj: any) {
-  const seen = new WeakSet();
-
-  function replacer(key: any, value: any) {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) {
-        return '[Circular Reference]';
-      }
-      seen.add(value);
-    }
-    return value;
-  }
-
-  return JSON.stringify(obj, replacer);
-}
