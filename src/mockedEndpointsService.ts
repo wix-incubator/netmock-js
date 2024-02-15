@@ -15,6 +15,7 @@ function getCleanState() {
 global.__netmockMockedEndpoints = getCleanState();
 
 export function reset() {
+  (global as any).__netmockPreResetHook?.();
   global.__netmockMockedEndpoints = getCleanState();
 }
 
