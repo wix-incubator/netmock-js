@@ -13,6 +13,8 @@ jest.doMock('http', () => ({
 }));
 
 beforeEach(() => {
+  const { overrideFetch } = require('./overrideFetch');
+  overrideFetch();
   const realFetch = jest.requireActual('node-fetch');
   // @ts-ignore
   global.fetch = realFetch;
