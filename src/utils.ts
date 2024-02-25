@@ -82,3 +82,14 @@ export function getErrorWithCorrectStack(errorMessage: string, stack: string) {
   error.stack = `${errorMessage}\n${stack}`;
   return error;
 }
+
+export function isLocalhostUrl(url: string){
+  const localhostURLs = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://[::1]',
+  ];
+  return localhostURLs.some((localhostURL) => {
+    return url.indexOf(localhostURL) === 0;
+  });
+}
