@@ -87,6 +87,27 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
       },
       pipe: () => getResBuffer(res),
     };
+    const returnValue = {
+      ...responseObject,
+      on: async (eventName: string, onCallback: CallBack) => {
+        let onReturnValue;
+        if (eventName === 'data') {
+          onReturnValue = getResBuffer(res);
+        } else if (eventName === 'response') {
+          await waitForRes();
+          onReturnValue = responseObject;
+        } else {
+          onReturnValue = null;
+        }
+        if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
+          onCallback(onReturnValue);
+          return onReturnValue;
+        }
+        return null;
+      },
+      destroy: (destroyCallback: any) => { destroyCallback(null); },
+      end: () => { },
+    };
     setTimeout(async () => {
       let handlerResponse = mockedEndpoint.handler({
         // @ts-ignore
@@ -99,31 +120,10 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
       res = isPromise(handlerResponse) ? await handlerResponse : handlerResponse;
       responseObject = convertResponse(responseObject, res);
       if (cb) {
-        cb({ ...returnObject, ...responseObject });
+        cb({ ...returnValue, ...responseObject });
       }
     }, 0);
-    const returnObject = {
-      ...responseObject,
-      on: async (eventName: string, onCallback: CallBack) => {
-        let returnValue;
-        if (eventName === 'data') {
-          returnValue = getResBuffer(res);
-        } else if (eventName === 'response') {
-          await waitForRes();
-          returnValue = responseObject;
-        } else {
-          returnValue = null;
-        }
-        if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
-          onCallback(returnValue);
-          return returnValue;
-        }
-        return null;
-      },
-      destroy: (destroyCallback: any) => { destroyCallback(null); },
-      end: () => { },
-    };
-    return returnObject;
+    return returnValue;
   } catch (e) {
     return Promise.reject(e);
   }

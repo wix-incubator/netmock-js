@@ -53,11 +53,11 @@ describe('Response', () => {
     });
 
     it('should mock a json response body', async () => {
-      // netmock.get('https://wix.com', () => ({ mocked: true }));
+      netmock.get('https://wix.com', () => ({ mocked: true }));
       netmock.get('https://wix2.com', () => reply({ mocked: true }));
-      // expect(await (await fetch('https://wix.com')).json()).toEqual({ mocked: true });
+      expect(await (await fetch('https://wix.com')).json()).toEqual({ mocked: true });
       expect(await (await fetch('https://wix2.com')).json()).toEqual({ mocked: true });
-      // expect((await axios.get('https://wix.com')).data).toEqual({ mocked: true });
+      expect((await axios.get('https://wix.com')).data).toEqual({ mocked: true });
     });
   });
 
