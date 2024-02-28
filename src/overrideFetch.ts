@@ -11,8 +11,7 @@ export function overrideFetch() {
   if (!global.originalFetch) {
     global.originalFetch = global.fetch;
   }
-  // @ts-ignore
-  global.fetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+  (global as any).fetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     try {
       const url = decodeURI(getUrl(input));
       const method = getRequestMethod(input, init);
