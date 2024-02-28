@@ -1,10 +1,11 @@
+import { ClientRequestArgs } from 'http';
 // eslint-disable-next-line import/no-cycle
 import { netlogApi } from './netlog';
 import { getSettings } from './settings';
 import type {
   MockedEndpoint, MockedEndpointHandler, Method, MockedUrl, MockedEndpointMetaData,
 } from './types';
-import { getMockedEndpointKey, convertUrlToRegex } from './utils';
+import { getMockedEndpointKey, convertUrlToRegex, getMockedEndpointKeyForHttp } from './utils';
 
 function getCleanState() {
   return {
@@ -21,6 +22,11 @@ export function reset() {
 
 export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   const key = getMockedEndpointKey(url);
+  return global.__netmockMockedEndpoints[method][key]?.metadata;
+}
+
+export function getMockedEndpointMetadataForHttp(method: Method, url: MockedUrl) {
+  const key = getMockedEndpointKeyForHttp(url);
   return global.__netmockMockedEndpoints[method][key]?.metadata;
 }
 
@@ -65,9 +71,24 @@ export function findMockedEndpoint(input: RequestInfo, method: Method): MockedEn
   return matchDirect || matchByParams();
 }
 
+export function findMockedEndpointForHttp(request: ClientRequestArgs, method: Method): MockedEndpoint | undefined {
+  const key = getMockedEndpointKeyForHttp(request);
+  const matchDirect = global.__netmockMockedEndpoints[method][key];
+  const matchByParams = () => Object
+    .values(global.__netmockMockedEndpoints[method])
+    .find((mockedEndpoint) => mockedEndpoint.urlRegex.test(key));
+
+  return matchDirect || matchByParams();
+}
+
 export function findMockedMethod(input: RequestInfo) {
   const methods: Method[] = ['get', 'post', 'put', 'delete', 'patch'];
   return methods.filter((method) => !!findMockedEndpoint(input, method));
+}
+
+export function findMockedMethodForHttp(request: ClientRequestArgs) {
+  const methods: Method[] = ['get', 'post', 'put', 'delete', 'patch'];
+  return methods.filter((method) => !!findMockedEndpointForHttp(request, method));
 }
 
 function getHandlerMetadataCollectorWrapper(handler: MockedEndpointHandler, metadata: MockedEndpointMetaData): MockedEndpointHandler {

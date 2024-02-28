@@ -1,25 +1,27 @@
-/* eslint-disable import/no-extraneous-dependencies */
-let axios: typeof import('axios') | undefined;
-try {
-  axios = require('axios');
-} catch {
-  //
-}
+import { ClientRequestArgs } from 'http';
+import { httpRequest } from './mockHttpModule';
 
-if (axios) {
-// make sure that axios is a singleton in the system
-  let actualAxios: any;
-  jest.doMock('axios', () => {
-    if (!actualAxios) {
-      actualAxios = jest.requireActual('axios');
-    }
-    return actualAxios;
-  }, { virtual: true });
-  require('axios').defaults.adapter = require('./axios-fetch-adapter').default;
-}
+global.originalHttps = jest.requireActual('https');
+global.originalHttp = jest.requireActual('http');
+jest.doMock('https', () => ({
+  ...jest.requireActual('https'),
+  request: (request: ClientRequestArgs, cb: CallBack) => httpRequest(request, cb, true),
+}));
+jest.doMock('http', () => ({
+  ...jest.requireActual('http'),
+  request: (request: ClientRequestArgs, cb: CallBack) => httpRequest(request, cb, false),
+}));
 
 beforeEach(() => {
-  require('isomorphic-fetch');
+  const realFetch = jest.requireActual('node-fetch');
+  // @ts-ignore
+  global.fetch = realFetch;
+  // @ts-ignore
+  global.Response = realFetch.Response;
+  // @ts-ignore
+  global.Headers = realFetch.Headers;
+  // @ts-ignore
+  global.Request = realFetch.Request;
   const { configure } = require('./settings');
   const { overrideFetch } = require('./overrideFetch');
   overrideFetch();

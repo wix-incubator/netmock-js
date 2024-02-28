@@ -1,3 +1,5 @@
+import { isLocalhostUrl } from './utils';
+
 global.__netmockSettings = {
   allowRealNetwork: false,
   suppressQueryParamsInUrlWarnings: false,
@@ -12,6 +14,9 @@ export function getSettings() {
 }
 
 export function isRealNetworkAllowed(url: string) {
+  if (isLocalhostUrl(url)) {
+    return true;
+  }
   if (typeof global.__netmockSettings.allowRealNetwork === 'boolean') {
     return global.__netmockSettings.allowRealNetwork;
   }

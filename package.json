@@ -22,7 +22,7 @@
     "url": "https://github.com/wix-incubator/netmock/issues"
   },
   "dependencies": {
-    "isomorphic-fetch": "^3.0.0"
+    "node-fetch": "^2.0.0"
   },
   "homepage": "https://github.com/wix-incubator/netmock#readme",
   "devDependencies": {
