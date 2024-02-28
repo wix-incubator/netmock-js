@@ -1,22 +1,21 @@
 import {
   captureStack, getErrorWithCorrectStack, getHeadersForHttp, getRequestMethodForHttp, getUrlForHttp, parseQueryForHttp,
 } from './utils';
-import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadata } from './mockedEndpointsService';
+import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMetadataForHttp } from './mockedEndpointsService';
 import { isRealNetworkAllowed } from './settings';
 import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
 
 function handleNotMockedResponse(request: HttpRequest, requestCallback?: CallBack, isHttpsRequest?: boolean) {
   const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
-  const func = originalModule.request;
   const url = getUrlForHttp(request);
   const method = getRequestMethodForHttp(request);
   const initialResponseObject = {
     headers: {},
-    location: 'BLA',
+    location: 'DEFAULT_LOCATION',
   };
   if (isRealNetworkAllowed(url)) {
-    return func(request, requestCallback);
+    return originalModule.request(request, requestCallback);
   }
   let message = `Endpoint not mocked: ${method.toUpperCase()} ${url}`;
   const mockedMethods = findMockedMethodForHttp(request);
@@ -24,7 +23,7 @@ function handleNotMockedResponse(request: HttpRequest, requestCallback?: CallBac
     message += `\nThe request is of type ${method.toUpperCase()} but netmock could only find mocks for ${mockedMethods.map((value) => value.toUpperCase()).join(',')}`;
   }
 
-  const err = getErrorWithCorrectStack(message, captureStack(func));
+  const err = getErrorWithCorrectStack(message, captureStack(originalModule.request));
   return {
     ...initialResponseObject,
     statusCode: 500,
@@ -57,7 +56,7 @@ function handleNotMockedResponse(request: HttpRequest, requestCallback?: CallBac
 export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?: boolean) {
   const initialResponseObject = {
     headers: {},
-    location: 'BLA',
+    location: 'DEFAULT_LOCATION',
   };
   try {
     const url = getUrlForHttp(request);
@@ -69,7 +68,7 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
     const headers = getHeadersForHttp(request);
     const query = parseQueryForHttp(request);
     const params = url.match(mockedEndpoint.urlRegex)?.groups ?? {};
-    const metadata = getMockedEndpointMetadata(method, url);
+    const metadata = getMockedEndpointMetadataForHttp(method, url);
     let body = '';
     let res: HttpResponse;
     const waitForRes = async () => {

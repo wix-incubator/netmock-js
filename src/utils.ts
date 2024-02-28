@@ -1,4 +1,4 @@
-import { Method } from './types';
+import { Method, MockedUrl } from './types';
 
 export function getUrl(input: RequestInfo): string {
   if (typeof input === 'string') { // If input is a string, it is the url
@@ -39,7 +39,10 @@ export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
 }
 
-export function getMockedEndpointKeyForHttp(request: HttpRequest): string {
+export function getMockedEndpointKeyForHttp(request: HttpRequest | MockedUrl): string {
+  if (request instanceof RegExp || typeof request === 'string') {
+    return `${request}`;
+  }
   const parsedUrl = new URL(getUrlForHttp(request));
   const cleanUrl = parsedUrl.origin + parsedUrl.pathname;
   return cleanUrl.endsWith('/') ? cleanUrl.slice(0, -1) : cleanUrl;
@@ -83,13 +86,11 @@ export function getErrorWithCorrectStack(errorMessage: string, stack: string) {
   return error;
 }
 
-export function isLocalhostUrl(url: string){
+export function isLocalhostUrl(url: string) {
   const localhostURLs = [
     'http://localhost',
     'http://127.0.0.1',
     'http://[::1]',
   ];
-  return localhostURLs.some((localhostURL) => {
-    return url.indexOf(localhostURL) === 0;
-  });
+  return localhostURLs.some((localhostURL) => url.indexOf(localhostURL) === 0);
 }

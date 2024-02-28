@@ -24,6 +24,11 @@ export function getMockedEndpointMetadata(method: Method, url: MockedUrl) {
   return global.__netmockMockedEndpoints[method][key]?.metadata;
 }
 
+export function getMockedEndpointMetadataForHttp(method: Method, url: MockedUrl) {
+  const key = getMockedEndpointKeyForHttp(url);
+  return global.__netmockMockedEndpoints[method][key]?.metadata;
+}
+
 export function registerMockedEndpoint(method: Method, url: MockedUrl, handler: MockedEndpointHandler, stackTrace: string) {
   if (typeof url === 'string' && isContainingQueryParams(url) && !getSettings().suppressQueryParamsInUrlWarnings) {
     console.warn(`
