@@ -1,6 +1,6 @@
 {
   "name": "netmock-js",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "A javascript network mocker for tests",
   "main": "lib/index.js",
   "scripts": {
