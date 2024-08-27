@@ -13,6 +13,16 @@ jest.doMock('http', () => ({
 }));
 
 beforeEach(() => {
+  // without duplicating the doMocks, in some cases the tests will fail
+  jest.doMock('https', () => ({
+    ...jest.requireActual('https'),
+    request: (request: ClientRequestArgs, cb: CallBack) => httpRequest(request, cb, true),
+  }));
+  jest.doMock('http', () => ({
+    ...jest.requireActual('http'),
+    request: (request: ClientRequestArgs, cb: CallBack) => httpRequest(request, cb, false),
+  }));
+
   const realFetch = jest.requireActual('node-fetch');
   // @ts-ignore
   global.fetch = realFetch;
