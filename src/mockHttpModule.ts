@@ -84,12 +84,13 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
       write: (text: Buffer) => {
         body = text.toString('utf8');
       },
+      removeListener: () => {},
       pipe: () => getResBuffer(res),
     };
     const returnValue = {
       ...responseObject,
       on: async (eventName: string, onCallback: CallBack) => {
-        let onReturnValue;
+        let onReturnValue: any;
         if (eventName === 'data') {
           onReturnValue = getResBuffer(res);
         } else if (eventName === 'response') {
@@ -99,7 +100,9 @@ export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?
           onReturnValue = null;
         }
         if (!['aborted', 'error', 'abort', 'connect', 'socket', 'timeout'].includes(eventName)) {
-          onCallback(onReturnValue);
+          setTimeout(() => {
+            onCallback(onReturnValue);
+          }, 0);
           return onReturnValue;
         }
         return null;

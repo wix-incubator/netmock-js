@@ -21,6 +21,7 @@ type ResponseObject = {
   headers: object,
   location: string,
   statusCode: number,
+  removeListener: () => void,
   once: () => void,
   write: (text: Buffer) => void,
   pipe: () => any,
