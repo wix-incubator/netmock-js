@@ -36,6 +36,7 @@ export function overrideFetch() {
       clearCurrentNetmockReplyTrace();
       const metadata = getMockedEndpointMetadata(method, url);
       let res = await mockedEndpoint.handler({
+        // @ts-ignore
         rawRequest, query, params, headers, body,
       }, { callCount: metadata?.calls.length });
 

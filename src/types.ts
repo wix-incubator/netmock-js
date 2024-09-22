@@ -1,6 +1,6 @@
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 export interface NetmockRequest {
-  rawRequest: Request;
+  raRequest: Request;
   headers: { [key: string]: string };
   query: { [key: string]: string };
   params: { [key: string]: string };
