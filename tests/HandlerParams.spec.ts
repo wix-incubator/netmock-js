@@ -104,7 +104,6 @@ describe('Mocked endpoints handler params', () => {
 
   it('should contain the raw request object', async () => {
     netmock.get('https://wix.com', (req) => {
-      // @ts-ignore
       expect(req.rawRequest instanceof Request).toEqual(true);
     });
     await fetch('https://wix.com');
