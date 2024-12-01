@@ -28,7 +28,7 @@ export function parseQueryForHttp(request: HttpRequest) {
 }
 
 export function getUrlForHttp(request: HttpRequest): string {
-  if (request.path && request.path.includes('http')) {
+  if (request.path?.includes('http')) {
     return decodeURI(request.path); // assume that if the path have the protocol http or https, then axios put the original URL as the path variable
   }
   return decodeURI(
