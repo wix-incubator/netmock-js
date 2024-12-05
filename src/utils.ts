@@ -28,7 +28,15 @@ export function parseQueryForHttp(request: HttpRequest) {
 }
 
 export function getUrlForHttp(request: HttpRequest): string {
-  return decodeURI((request.protocol ?? 'http:').concat('//').concat(request.hostname ?? '').concat(request.path ?? ''));
+  if (request.path?.includes('http')) {
+    return decodeURI(request.path); // assume that if the path have the protocol http or https, then axios put the original URL as the path variable
+  }
+  return decodeURI(
+    (request.protocol ?? 'http:')
+      .concat('//')
+      .concat(request.hostname ?? '')
+      .concat(request.path ?? ''),
+  );
 }
 export function getMockedEndpointKey(input: RequestInfo | RegExp): string {
   if (input instanceof RegExp) {
