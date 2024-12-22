@@ -5,14 +5,14 @@ import { findMockedEndpointForHttp, findMockedMethodForHttp, getMockedEndpointMe
 import { isRealNetworkAllowed } from './settings';
 import { NetmockResponseType } from './types';
 import { isInstanceOfNetmockResponse } from './NetmockResponse';
-import { MockHttpRequestBuilder } from './RequestBuilder';
+import { MockHttpEventsBuilder } from './MockHttpEventsBuilder';
 
 const initialResponseObject = {
   headers: {},
   location: 'DEFAULT_LOCATION',
 };
 
-function handleNotMockedResponse(request: HttpRequest, requestBuilder: MockHttpRequestBuilder, responseBuilder: MockHttpRequestBuilder, requestCallback?: CallBack, isHttpsRequest?: boolean) {
+function handleNotMockedResponse(request: HttpRequest, requestBuilder: MockHttpEventsBuilder, responseBuilder: MockHttpEventsBuilder, requestCallback?: CallBack, isHttpsRequest?: boolean) {
   const originalModule = isHttpsRequest ? global.originalHttps : global.originalHttp;
   const url = getUrlForHttp(request);
   const method = getRequestMethodForHttp(request);
@@ -28,7 +28,13 @@ function handleNotMockedResponse(request: HttpRequest, requestBuilder: MockHttpR
   const err = getErrorWithCorrectStack(message, captureStack(originalModule.request));
   const requestResult = requestBuilder
     .setStatusCode(500)
-    .setErrorMessage(err).build();
+    .setErrorMessage(err)
+    .setEnd(() => {
+      if (requestCallback) {
+        requestCallback(responseResult);
+      }
+    })
+    .build();
 
   const responseResult = responseBuilder
     .setStatusCode(500)
@@ -39,19 +45,14 @@ function handleNotMockedResponse(request: HttpRequest, requestBuilder: MockHttpR
         return err;
       }
       return null;
-    }).build();
-
-  setTimeout(async () => {
-    if (requestCallback) {
-      requestCallback(responseResult);
-    }
-  }, 0);
+    })
+    .build();
 
   return requestResult;
 }
 export function httpRequest(request: HttpRequest, cb?: CallBack, isHttpsRequest?: boolean) {
-  const requestBuilder = new MockHttpRequestBuilder(initialResponseObject);
-  const responseBuilder = new MockHttpRequestBuilder(initialResponseObject);
+  const requestBuilder = new MockHttpEventsBuilder(initialResponseObject);
+  const responseBuilder = new MockHttpEventsBuilder(initialResponseObject);
   try {
     requestBuilder.setCallback(cb);
     const url = getUrlForHttp(request);
@@ -89,7 +90,7 @@ function isPromise(obj: any) {
   return obj instanceof Promise;
 }
 
-function convertResponse(responseBuilder: MockHttpRequestBuilder, response: HttpResponse) {
+function convertResponse(responseBuilder: MockHttpEventsBuilder, response: HttpResponse) {
   if (isInstanceOfNetmockResponse(response)) {
     const netmockRes = response as NetmockResponseType<string | object>;
     const netmockResParams = netmockRes.getResponseParams();

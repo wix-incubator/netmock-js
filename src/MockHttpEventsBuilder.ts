@@ -1,13 +1,12 @@
 import { NetmockResponseType } from './types';
 
-export class MockHttpRequestBuilder {
+export class MockHttpEventsBuilder {
   private result: any;
   public body: string = '';
   public mockedResponse: HttpResponse;
   private error?: Error;
-  private callback?: CallBack; // Callback to allow modification
+  private callback?: CallBack;
 
-  // Class members for overrideable behaviors
   public on: (eventName: string, onCallback: CallBack) => any = async (eventName, onCallback) => {
     if (['error', 'abort', 'aborted'].includes(eventName) && !this.callback) {
       onCallback(this.error);
